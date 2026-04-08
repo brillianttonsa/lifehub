@@ -1,0 +1,399 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+
+enum UserStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum WorkspaceType {
+  PERSONAL
+  FAMILY
+  FRIENDS
+}
+
+enum WorkspaceRole {
+  OWNER
+  ADMIN
+  MEMBER
+  VIEWER
+}
+
+enum WalletType {
+  CASH
+  BANK
+  MOBILE_MONEY
+}
+
+enum ProviderType {
+  AIRTEL
+  TIGO
+  TTCL
+  HALOTEL
+  OTHER
+}
+
+enum TransactionKind {
+  INCOME
+  EXPENSE
+  TRANSFER
+}
+
+enum LedgerEntryType {
+  DEBIT
+  CREDIT
+}
+
+enum HabitSetStatus {
+  ACTIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum HabitCheckStatus {
+  DONE
+  NOT_DONE
+}
+
+enum ProjectStatus {
+  PLANNED
+  ACTIVE
+  ON_HOLD
+  COMPLETED
+  CANCELLED
+}
+
+enum ProjectTaskStatus {
+  TODO
+  IN_PROGRESS
+  DONE
+  BLOCKED
+}
+
+enum ProjectTaskPriority {
+  LOW
+  MEDIUM
+  HIGH
+  URGENT
+}
+
+enum PlanType {
+  YEARLY
+  MONTHLY
+  WEEKLY
+  DAILY
+}
+
+enum PlanStatus {
+  OPEN
+  IN_PROGRESS
+  DONE
+  CANCELLED
+}
+
+enum PlanItemStatus {
+  TODO
+  DOING
+  DONE
+  SKIPPED
+}
+
+model User {
+  id            String              @id @default(uuid()) @db.Uuid
+  email         String              @unique
+  passwordHash  String              @map("password_hash")
+  fullName      String              @map("full_name")
+  status        UserStatus          @default(ACTIVE)
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  deletedAt     DateTime?           @map("deleted_at")
+  memberships   WorkspaceMember[]
+  sessions      AuthSession[]
+  ownedSpaces   Workspace[]         @relation("WorkspaceOwner")
+  transactionsC PocketTransaction[] @relation("PocketTxCreatedBy")
+  transactionsU PocketTransaction[] @relation("PocketTxUpdatedBy")
+  wallets       Wallet[]
+  habitSets     HabitSet[]
+  habitCheckins HabitCheckin[]
+  projectsOwned Project[]           @relation("ProjectOwner")
+  projectComms  ProjectComment[]
+  planOwners    Plan[]              @relation("PlanOwner")
+}
+
+model Workspace {
+  id          String            @id @default(uuid()) @db.Uuid
+  type        WorkspaceType
+  name        String
+  ownerUserId String            @map("owner_user_id") @db.Uuid
+  createdAt   DateTime          @default(now()) @map("created_at")
+  updatedAt   DateTime          @updatedAt @map("updated_at")
+  deletedAt   DateTime?         @map("deleted_at")
+  owner       User              @relation("WorkspaceOwner", fields: [ownerUserId], references: [id])
+  members     WorkspaceMember[]
+  wallets     Wallet[]
+  categories  PocketCategory[]
+  txs         PocketTransaction[]
+  ledgers     WalletLedgerEntry[]
+  habitSets   HabitSet[]
+  habits      Habit[]
+  habitChecks HabitCheckin[]
+  projects    Project[]
+  projectTask ProjectTask[]
+  projectCom  ProjectComment[]
+  plans       Plan[]
+  planItems   PlanItem[]
+}
+
+model WorkspaceMember {
+  id          String        @id @default(uuid()) @db.Uuid
+  workspaceId String        @map("workspace_id") @db.Uuid
+  userId      String        @map("user_id") @db.Uuid
+  role        WorkspaceRole
+  invitedBy   String?       @map("invited_by") @db.Uuid
+  joinedAt    DateTime      @default(now()) @map("joined_at")
+  workspace   Workspace     @relation(fields: [workspaceId], references: [id])
+  user        User          @relation(fields: [userId], references: [id])
+
+  @@unique([workspaceId, userId])
+}
+
+model AuthSession {
+  id               String    @id @default(uuid()) @db.Uuid
+  userId           String    @map("user_id") @db.Uuid
+  refreshTokenHash String    @map("refresh_token_hash")
+  userAgent        String?   @map("user_agent")
+  ipAddress        String?   @map("ip_address")
+  expiresAt        DateTime  @map("expires_at")
+  revokedAt        DateTime? @map("revoked_at")
+  createdAt        DateTime  @default(now()) @map("created_at")
+  user             User      @relation(fields: [userId], references: [id])
+}
+
+model Wallet {
+  id           String              @id @default(uuid()) @db.Uuid
+  workspaceId  String              @map("workspace_id") @db.Uuid
+  name         String
+  type         WalletType
+  provider     ProviderType?
+  currencyCode String              @default("TZS") @map("currency_code")
+  balance      Decimal             @default(0.00) @db.Decimal(18, 2)
+  isActive     Boolean             @default(true) @map("is_active")
+  createdBy    String              @map("created_by") @db.Uuid
+  createdAt    DateTime            @default(now()) @map("created_at")
+  updatedAt    DateTime            @updatedAt @map("updated_at")
+  deletedAt    DateTime?           @map("deleted_at")
+  workspace    Workspace           @relation(fields: [workspaceId], references: [id])
+  creator      User                @relation(fields: [createdBy], references: [id])
+  sourceTxs    PocketTransaction[] @relation("SourceWallet")
+  targetTxs    PocketTransaction[] @relation("TargetWallet")
+  ledgers      WalletLedgerEntry[]
+}
+
+model PocketCategory {
+  id          String              @id @default(uuid()) @db.Uuid
+  workspaceId String              @map("workspace_id") @db.Uuid
+  name        String
+  type        TransactionKind
+  parentId    String?             @map("parent_id") @db.Uuid
+  createdAt   DateTime            @default(now()) @map("created_at")
+  updatedAt   DateTime            @updatedAt @map("updated_at")
+  deletedAt   DateTime?           @map("deleted_at")
+  workspace   Workspace           @relation(fields: [workspaceId], references: [id])
+  txs         PocketTransaction[]
+}
+
+model PocketTransaction {
+  id                  String             @id @default(uuid()) @db.Uuid
+  workspaceId         String             @map("workspace_id") @db.Uuid
+  kind                TransactionKind
+  amount              Decimal            @db.Decimal(18, 2)
+  currencyCode        String             @default("TZS") @map("currency_code")
+  occurredAt          DateTime           @map("occurred_at")
+  description         String?
+  sourceWalletId      String?            @map("source_wallet_id") @db.Uuid
+  destinationWalletId String?            @map("destination_wallet_id") @db.Uuid
+  categoryId          String?            @map("category_id") @db.Uuid
+  referenceCode       String?            @map("reference_code")
+  createdBy           String             @map("created_by") @db.Uuid
+  updatedBy           String             @map("updated_by") @db.Uuid
+  createdAt           DateTime           @default(now()) @map("created_at")
+  updatedAt           DateTime           @updatedAt @map("updated_at")
+  deletedAt           DateTime?          @map("deleted_at")
+  workspace           Workspace          @relation(fields: [workspaceId], references: [id])
+  sourceWallet        Wallet?            @relation("SourceWallet", fields: [sourceWalletId], references: [id])
+  destinationWallet   Wallet?            @relation("TargetWallet", fields: [destinationWalletId], references: [id])
+  category            PocketCategory?    @relation(fields: [categoryId], references: [id])
+  creator             User               @relation("PocketTxCreatedBy", fields: [createdBy], references: [id])
+  updater             User               @relation("PocketTxUpdatedBy", fields: [updatedBy], references: [id])
+  entries             WalletLedgerEntry[]
+}
+
+model WalletLedgerEntry {
+  id            String            @id @default(uuid()) @db.Uuid
+  workspaceId   String            @map("workspace_id") @db.Uuid
+  walletId      String            @map("wallet_id") @db.Uuid
+  transactionId String            @map("transaction_id") @db.Uuid
+  entryType     LedgerEntryType   @map("entry_type")
+  amount        Decimal           @db.Decimal(18, 2)
+  balanceBefore Decimal           @map("balance_before") @db.Decimal(18, 2)
+  balanceAfter  Decimal           @map("balance_after") @db.Decimal(18, 2)
+  recordedAt    DateTime          @default(now()) @map("recorded_at")
+  recordedBy    String            @map("recorded_by") @db.Uuid
+  workspace     Workspace         @relation(fields: [workspaceId], references: [id])
+  wallet        Wallet            @relation(fields: [walletId], references: [id])
+  transaction   PocketTransaction @relation(fields: [transactionId], references: [id])
+}
+
+model HabitSet {
+  id                 String         @id @default(uuid()) @db.Uuid
+  workspaceId        String         @map("workspace_id") @db.Uuid
+  createdBy          String         @map("created_by") @db.Uuid
+  title              String
+  goalDescription    String?        @map("goal_description")
+  cycleUnit          String         @map("cycle_unit")
+  cycleLength        Int            @map("cycle_length")
+  startDate          DateTime       @map("start_date")
+  endDate            DateTime       @map("end_date")
+  status             HabitSetStatus @default(ACTIVE)
+  autoCloseEnabled   Boolean        @default(true) @map("auto_close_enabled")
+  closedAt           DateTime?      @map("closed_at")
+  summaryGeneratedAt DateTime?      @map("summary_generated_at")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
+  workspace          Workspace      @relation(fields: [workspaceId], references: [id])
+  creator            User           @relation(fields: [createdBy], references: [id])
+  habits             Habit[]
+}
+
+model Habit {
+  id                 String         @id @default(uuid()) @db.Uuid
+  workspaceId        String         @map("workspace_id") @db.Uuid
+  habitSetId         String         @map("habit_set_id") @db.Uuid
+  name               String
+  targetFrequency    String         @default("DAILY") @map("target_frequency")
+  targetCountPerDay  Int            @default(1) @map("target_count_per_day")
+  createdAt          DateTime       @default(now()) @map("created_at")
+  updatedAt          DateTime       @updatedAt @map("updated_at")
+  deletedAt          DateTime?      @map("deleted_at")
+  workspace          Workspace      @relation(fields: [workspaceId], references: [id])
+  habitSet           HabitSet       @relation(fields: [habitSetId], references: [id])
+  checkins           HabitCheckin[]
+  planItems          PlanItem[]
+}
+
+model HabitCheckin {
+  id          String           @id @default(uuid()) @db.Uuid
+  workspaceId String           @map("workspace_id") @db.Uuid
+  habitId     String           @map("habit_id") @db.Uuid
+  checkinDate DateTime         @map("checkin_date")
+  status      HabitCheckStatus
+  note        String?
+  checkedBy   String           @map("checked_by") @db.Uuid
+  createdAt   DateTime         @default(now()) @map("created_at")
+  updatedAt   DateTime         @updatedAt @map("updated_at")
+  workspace   Workspace        @relation(fields: [workspaceId], references: [id])
+  habit       Habit            @relation(fields: [habitId], references: [id])
+  checker     User             @relation(fields: [checkedBy], references: [id])
+
+  @@unique([habitId, checkinDate])
+}
+
+model Project {
+  id          String          @id @default(uuid()) @db.Uuid
+  workspaceId String          @map("workspace_id") @db.Uuid
+  name        String
+  description String?
+  goals       Json?
+  status      ProjectStatus   @default(PLANNED)
+  deadline    DateTime?
+  budgetAmount Decimal?       @map("budget_amount") @db.Decimal(18, 2)
+  progressPct Int             @default(0) @map("progress_pct")
+  ownerUserId String          @map("owner_user_id") @db.Uuid
+  createdAt   DateTime        @default(now()) @map("created_at")
+  updatedAt   DateTime        @updatedAt @map("updated_at")
+  deletedAt   DateTime?       @map("deleted_at")
+  workspace   Workspace       @relation(fields: [workspaceId], references: [id])
+  owner       User            @relation("ProjectOwner", fields: [ownerUserId], references: [id])
+  tasks       ProjectTask[]
+  comments    ProjectComment[]
+  planItems   PlanItem[]
+}
+
+model ProjectTask {
+  id            String              @id @default(uuid()) @db.Uuid
+  workspaceId   String              @map("workspace_id") @db.Uuid
+  projectId     String              @map("project_id") @db.Uuid
+  title         String
+  description   String?
+  status        ProjectTaskStatus   @default(TODO)
+  priority      ProjectTaskPriority @default(MEDIUM)
+  assigneeUserId String?            @map("assignee_user_id") @db.Uuid
+  dueDate       DateTime?           @map("due_date")
+  orderIndex    Int                 @default(0) @map("order_index")
+  createdAt     DateTime            @default(now()) @map("created_at")
+  updatedAt     DateTime            @updatedAt @map("updated_at")
+  deletedAt     DateTime?           @map("deleted_at")
+  workspace     Workspace           @relation(fields: [workspaceId], references: [id])
+  project       Project             @relation(fields: [projectId], references: [id])
+}
+
+model ProjectComment {
+  id           String    @id @default(uuid()) @db.Uuid
+  workspaceId  String    @map("workspace_id") @db.Uuid
+  projectId    String    @map("project_id") @db.Uuid
+  taskId       String?   @map("task_id") @db.Uuid
+  authorUserId String    @map("author_user_id") @db.Uuid
+  body         String
+  createdAt    DateTime  @default(now()) @map("created_at")
+  updatedAt    DateTime  @updatedAt @map("updated_at")
+  deletedAt    DateTime? @map("deleted_at")
+  workspace    Workspace @relation(fields: [workspaceId], references: [id])
+  project      Project   @relation(fields: [projectId], references: [id])
+  author       User      @relation(fields: [authorUserId], references: [id])
+}
+
+model Plan {
+  id          String     @id @default(uuid()) @db.Uuid
+  workspaceId String     @map("workspace_id") @db.Uuid
+  type        PlanType
+  title       String
+  description String?
+  periodStart DateTime   @map("period_start")
+  periodEnd   DateTime   @map("period_end")
+  status      PlanStatus @default(OPEN)
+  ownerUserId String     @map("owner_user_id") @db.Uuid
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
+  deletedAt   DateTime?  @map("deleted_at")
+  workspace   Workspace  @relation(fields: [workspaceId], references: [id])
+  owner       User       @relation("PlanOwner", fields: [ownerUserId], references: [id])
+  items       PlanItem[]
+}
+
+model PlanItem {
+  id              String         @id @default(uuid()) @db.Uuid
+  workspaceId     String         @map("workspace_id") @db.Uuid
+  planId          String         @map("plan_id") @db.Uuid
+  title           String
+  description     String?
+  status          PlanItemStatus @default(TODO)
+  priority        String?
+  dueDate         DateTime?      @map("due_date")
+  isRecurring     Boolean        @default(false) @map("is_recurring")
+  recurrenceRule  String?        @map("recurrence_rule")
+  linkedProjectId String?        @map("linked_project_id") @db.Uuid
+  linkedHabitId   String?        @map("linked_habit_id") @db.Uuid
+  createdAt       DateTime       @default(now()) @map("created_at")
+  updatedAt       DateTime       @updatedAt @map("updated_at")
+  deletedAt       DateTime?      @map("deleted_at")
+  workspace       Workspace      @relation(fields: [workspaceId], references: [id])
+  plan            Plan           @relation(fields: [planId], references: [id])
+  linkedProject   Project?       @relation(fields: [linkedProjectId], references: [id])
+  linkedHabit     Habit?         @relation(fields: [linkedHabitId], references: [id])
+}
