@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useMemo, useState } from 'react';
 import {
   Calendar,
   Plus,
@@ -18,184 +18,25 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from '@/components/ui/dialog';
-import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Field, FieldLabel, FieldGroup } from '@/components/ui/field';
-import { Spinner } from '@/components/ui/spinner';
 import { Empty } from '@/components/ui/empty';
 import { Checkbox } from '@/components/ui/checkbox';
-import { useAuth } from '@/lib/auth-context';
-import { toast } from 'sonner';
-import api from '@/lib/api';
-import { format, startOfMonth, endOfMonth, startOfWeek, endOfWeek, startOfYear, endOfYear } from 'date-fns';
-
-type PlanItem = {
-  id: string;
-  title: string;
-  description?: string;
-  dueDate?: string;
-  status: string;
-  isRecurring: boolean;
-};
-
-type Plan = {
-  id: string;
-  type: string;
-  title: string;
-  description?: string;
-  periodStart: string;
-  periodEnd: string;
-  workspaceId: string;
-  items: PlanItem[];
-};
+import { format } from 'date-fns';
+import { CreatePlanDialog } from '@/components/plans/create-plan-dialog';
+import { AddPlanItemDialog } from '@/components/plans/add-plan-item-dialog';
+import { usePlans } from '@/hooks/plans/use-plans';
+import type { Plan } from '@/types/plans';
 
 export default function PlansPage() {
-  const { currentWorkspace } = useAuth();
-  const [plans, setPlans] = useState<Plan[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isPlanDialogOpen, setIsPlanDialogOpen] = useState(false);
   const [isItemDialogOpen, setIsItemDialogOpen] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<Plan | null>(null);
-  const [isSubmitting, setIsSubmitting] = useState(false);
   const [activeTab, setActiveTab] = useState('all');
 
-  // Plan form state
-  const [planTitle, setPlanTitle] = useState('');
-  const [planDescription, setPlanDescription] = useState('');
-  const [planType, setPlanType] = useState<'DAILY' | 'WEEKLY' | 'MONTHLY' | 'YEARLY'>('MONTHLY');
-
-  // Item form state
-  const [itemTitle, setItemTitle] = useState('');
-  const [itemDescription, setItemDescription] = useState('');
-  const [itemDueDate, setItemDueDate] = useState('');
-  const [itemIsRecurring, setItemIsRecurring] = useState(false);
-
-  const fetchPlans = async () => {
-    if (!currentWorkspace) return;
-
-    setIsLoading(true);
-    try {
-      const response = await api.getPlans();
-      if (response.success) {
-        setPlans(response.data);
-      }
-    } catch {
-      toast.error('Failed to load plans');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchPlans();
-  }, [currentWorkspace]);
-
-  const getPeriodDates = (type: string) => {
-    const now = new Date();
-    switch (type) {
-      case 'DAILY':
-        return {
-          start: now,
-          end: now,
-        };
-      case 'WEEKLY':
-        return {
-          start: startOfWeek(now, { weekStartsOn: 1 }),
-          end: endOfWeek(now, { weekStartsOn: 1 }),
-        };
-      case 'MONTHLY':
-        return {
-          start: startOfMonth(now),
-          end: endOfMonth(now),
-        };
-      case 'YEARLY':
-        return {
-          start: startOfYear(now),
-          end: endOfYear(now),
-        };
-      default:
-        return {
-          start: startOfMonth(now),
-          end: endOfMonth(now),
-        };
-    }
-  };
-
-  const resetPlanForm = () => {
-    setPlanTitle('');
-    setPlanDescription('');
-    setPlanType('MONTHLY');
-  };
-
-  const resetItemForm = () => {
-    setItemTitle('');
-    setItemDescription('');
-    setItemDueDate('');
-    setItemIsRecurring(false);
-  };
-
-  const handleCreatePlan = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-
-    try {
-      const { start, end } = getPeriodDates(planType);
-      await api.createPlan({
-        type: planType,
-        title: planTitle,
-        description: planDescription || undefined,
-        periodStart: start.toISOString(),
-        periodEnd: end.toISOString(),
-      });
-
-      toast.success('Plan created!');
-      setIsPlanDialogOpen(false);
-      resetPlanForm();
-      fetchPlans();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to create plan');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  const handleAddItem = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!selectedPlan) return;
-
-    setIsSubmitting(true);
-    try {
-      await api.addPlanItem(selectedPlan.id, {
-        title: itemTitle,
-        description: itemDescription || undefined,
-        dueDate: itemDueDate ? new Date(itemDueDate).toISOString() : undefined,
-        isRecurring: itemIsRecurring,
-      });
-
-      toast.success('Item added!');
-      setIsItemDialogOpen(false);
-      resetItemForm();
-      fetchPlans();
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : 'Failed to add item');
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
+  const { plans, loading: isLoading, fetchPlans } = usePlans();
 
   const getTypeIcon = (type: string) => {
     switch (type) {
@@ -227,14 +68,15 @@ export default function PlansPage() {
     }
   };
 
-  const filteredPlans = activeTab === 'all'
-    ? plans
-    : plans.filter((p) => p.type === activeTab.toUpperCase());
+  const filteredPlans = useMemo(
+    () => (activeTab === 'all' ? plans : plans.filter((p) => p.type === activeTab.toUpperCase())),
+    [activeTab, plans],
+  );
 
   const totalItems = plans.reduce((acc, plan) => acc + plan.items.length, 0);
   const completedItems = plans.reduce(
     (acc, plan) =>
-      acc + plan.items.filter((item) => item.status === 'COMPLETED').length,
+      acc + plan.items.filter((item) => item.status === 'DONE' || item.status === 'COMPLETED').length,
     0
   );
 
@@ -247,67 +89,7 @@ export default function PlansPage() {
             Organize your goals with daily, weekly, monthly, and yearly plans
           </p>
         </div>
-        <Dialog open={isPlanDialogOpen} onOpenChange={setIsPlanDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <Plus className="h-4 w-4 mr-2" />
-              New Plan
-            </Button>
-          </DialogTrigger>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>Create Plan</DialogTitle>
-              <DialogDescription>
-                Create a new plan to organize your goals and tasks
-              </DialogDescription>
-            </DialogHeader>
-            <form onSubmit={handleCreatePlan} className="space-y-4 mt-4">
-              <FieldGroup>
-                <Field>
-                  <FieldLabel htmlFor="planTitle">Title</FieldLabel>
-                  <Input
-                    id="planTitle"
-                    placeholder="e.g., April Goals"
-                    value={planTitle}
-                    onChange={(e) => setPlanTitle(e.target.value)}
-                    required
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel htmlFor="planDescription">
-                    Description (optional)
-                  </FieldLabel>
-                  <Textarea
-                    id="planDescription"
-                    placeholder="What do you want to achieve?"
-                    value={planDescription}
-                    onChange={(e) => setPlanDescription(e.target.value)}
-                    rows={2}
-                  />
-                </Field>
-                <Field>
-                  <FieldLabel>Plan Type</FieldLabel>
-                  <Select value={planType} onValueChange={(v) => setPlanType(v as typeof planType)}>
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="DAILY">Daily</SelectItem>
-                      <SelectItem value="WEEKLY">Weekly</SelectItem>
-                      <SelectItem value="MONTHLY">Monthly</SelectItem>
-                      <SelectItem value="YEARLY">Yearly</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </Field>
-              </FieldGroup>
-
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? <Spinner className="mr-2" /> : null}
-                {isSubmitting ? 'Creating...' : 'Create Plan'}
-              </Button>
-            </form>
-          </DialogContent>
-        </Dialog>
+        <CreatePlanDialog onSuccess={fetchPlans} />
       </div>
 
       {/* Stats Cards */}
@@ -398,7 +180,7 @@ export default function PlansPage() {
                 const TypeIcon = getTypeIcon(plan.type);
                 const typeColor = getTypeColor(plan.type);
                 const completed = plan.items.filter(
-                  (i) => i.status === 'COMPLETED'
+                  (i) => i.status === 'DONE' || i.status === 'COMPLETED'
                 ).length;
                 const progress =
                   plan.items.length > 0
@@ -466,13 +248,13 @@ export default function PlansPage() {
                               className="flex items-center gap-3 p-3 rounded-lg border border-border hover:bg-muted/50 transition-colors"
                             >
                               <Checkbox
-                                checked={item.status === 'COMPLETED'}
+                                checked={item.status === 'DONE' || item.status === 'COMPLETED'}
                                 className="h-5 w-5"
                               />
                               <div className="flex-1 min-w-0">
                                 <p
                                   className={`font-medium ${
-                                    item.status === 'COMPLETED'
+                                    item.status === 'DONE' || item.status === 'COMPLETED'
                                       ? 'line-through text-muted-foreground'
                                       : ''
                                   }`}
@@ -550,71 +332,12 @@ export default function PlansPage() {
       </Tabs>
 
       {/* Add Item Dialog */}
-      <Dialog open={isItemDialogOpen} onOpenChange={setIsItemDialogOpen}>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Add Plan Item</DialogTitle>
-            <DialogDescription>
-              Add a new item to {selectedPlan?.title}
-            </DialogDescription>
-          </DialogHeader>
-          <form onSubmit={handleAddItem} className="space-y-4 mt-4">
-            <FieldGroup>
-              <Field>
-                <FieldLabel htmlFor="itemTitle">Title</FieldLabel>
-                <Input
-                  id="itemTitle"
-                  placeholder="e.g., Complete project proposal"
-                  value={itemTitle}
-                  onChange={(e) => setItemTitle(e.target.value)}
-                  required
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="itemDescription">
-                  Description (optional)
-                </FieldLabel>
-                <Textarea
-                  id="itemDescription"
-                  placeholder="Add more details..."
-                  value={itemDescription}
-                  onChange={(e) => setItemDescription(e.target.value)}
-                  rows={2}
-                />
-              </Field>
-              <Field>
-                <FieldLabel htmlFor="itemDueDate">Due Date (optional)</FieldLabel>
-                <Input
-                  id="itemDueDate"
-                  type="date"
-                  value={itemDueDate}
-                  onChange={(e) => setItemDueDate(e.target.value)}
-                />
-              </Field>
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="isRecurring"
-                  checked={itemIsRecurring}
-                  onCheckedChange={(checked) =>
-                    setItemIsRecurring(checked as boolean)
-                  }
-                />
-                <label
-                  htmlFor="isRecurring"
-                  className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-                >
-                  This is a recurring item
-                </label>
-              </div>
-            </FieldGroup>
-
-            <Button type="submit" className="w-full" disabled={isSubmitting}>
-              {isSubmitting ? <Spinner className="mr-2" /> : null}
-              {isSubmitting ? 'Adding...' : 'Add Item'}
-            </Button>
-          </form>
-        </DialogContent>
-      </Dialog>
+      <AddPlanItemDialog
+        open={isItemDialogOpen}
+        onOpenChange={setIsItemDialogOpen}
+        plan={selectedPlan}
+        onSuccess={fetchPlans}
+      />
     </div>
   );
 }
