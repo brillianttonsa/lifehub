@@ -1,10 +1,13 @@
 import { Router } from "express";
-import { asyncHandler } from "../../shared/http";
-import { login, refreshToken, logout, register } from "./auth.controller";
+import { AuthController } from "./auth.controller";
 
-export const authRouter = Router();
+const router = Router();
 
-authRouter.post("/register", asyncHandler(register));
-authRouter.post("/login", asyncHandler(login));
-authRouter.post("/refresh", asyncHandler(refreshToken));
-authRouter.post("/logout", asyncHandler(logout));
+router.post("/signup", AuthController.signup);
+router.post("/login", AuthController.login);
+router.post("/logout", AuthController.logout);
+router.post("/refresh", AuthController.refresh);
+router.post("/forgot-password", AuthController.forgotPassword);
+router.post("/reset-password", AuthController.resetPassword);
+
+export default router;

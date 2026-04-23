@@ -1,49 +1,69 @@
 import { Request, Response } from "express";
-import { z } from "zod";
-import { authService } from "./auth.service";
+import { AuthService } from "./auth.service";
+import { setAuthCookies, clearAuthCookies } from "../../utils/cookies";
 
-const registerSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(8),
-  fullName: z.string().min(2),
-});
+export class AuthController {
 
-const loginSchema = z.object({
-  email: z.string().email(),
-  password: z.string().min(1),
-});
+  static async signup(req: Request, res: Response) {
+    const { email, password, fullName } = req.body;
 
-const refreshSchema = z.object({
-  refreshToken: z.string().min(1),
-});
+    const user = await AuthService.signup(email, password, fullName);
 
-const logoutSchema = z.object({
-  refreshToken: z.string().min(1),
-});
+    res.json({ user });
+  }
 
-export async function register(req: Request, res: Response) {
-  console.log('Register called with body:', req.body);
-  const payload = registerSchema.parse(req.body);
-  console.log('Parsed payload:', payload);
-  const user = await authService.register(payload);
-  console.log('User created:', user);
-  res.status(201).json({ success: true, data: user });
+  // login
+  static async login(req: Request, res: Response) {
+    const { email, password } = req.body;
+
+    const { user, accessToken, refreshToken } =
+      await AuthService.login(email, password);
+
+    setAuthCookies(res, accessToken, refreshToken);
+
+    res.json({ user });
+  }
+
+  // refresh
+  static async refresh(req: Request, res: Response) {
+    const token = req.cookies.refresh_token;
+
+    if (!token) {
+      return res.status(401).json({ message: "No token" });
+    }
+
+    const { newAccess, newRefresh } = await AuthService.refresh(token);
+
+    setAuthCookies(res, newAccess, newRefresh);
+
+    res.json({ success: true });
+  }
+
+  // logout
+  static async logout(req: Request, res: Response) {
+    clearAuthCookies(res);
+    res.json({ message: "Logged out" });
+  }
+
+
+  // forgot password
+  static async forgotPassword(req: Request, res: Response) {
+  const { email } = req.body;
+
+  const token = await AuthService.forgotPassword(email);
+
+  res.json({
+    message: "Reset link generated",
+    token, // will remove in production, send email instead
+  });
 }
 
-export async function login(req: Request, res: Response) {
-  const payload = loginSchema.parse(req.body);
-  const tokens = await authService.login(payload);
-  res.json({ success: true, data: tokens });
-}
+  // resetPassword
+  static async resetPassword(req: Request, res: Response) {
+    const { token, newPassword } = req.body;
 
-export async function refreshToken(req: Request, res: Response) {
-  const payload = refreshSchema.parse(req.body);
-  const tokens = await authService.refresh(payload.refreshToken);
-  res.json({ success: true, data: tokens });
-}
+    await AuthService.resetPassword(token, newPassword);
 
-export async function logout(req: Request, res: Response) {
-  const payload = logoutSchema.parse(req.body);
-  const output = await authService.logout(payload.refreshToken);
-  res.json({ success: true, data: output });
+    res.json({ message: "Password updated" });
+  }
 }
