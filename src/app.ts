@@ -5,7 +5,8 @@ import morgan from 'morgan';
 
 // error
 import { errorHandler } from './middlewares/error.middleware';
-
+// routes
+import authRoutes from './modules/auth/auth.routes';
 import { env } from './config/env';
 
 const app = express();
@@ -32,6 +33,9 @@ if (env.NODE_ENV === 'development') {
 
 // Error handling middleware (should be last)
 app.use(errorHandler);
+
+// Routes
+app.use('/api/auth', authRoutes);
 
 // Health check
 app.get('/health', (req, res) => {
