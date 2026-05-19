@@ -1,14 +1,24 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { useEffect } from "react";
+import { useAuth } from "@/context/AuthContext";
+import { LoadingSpinner } from "@/components/common/LoadingSpinner";
 
-export const Route = createFileRoute('/')({ component: Home })
+export const Route = createFileRoute("/")({
+  component: Index,
+});
 
-function Home() {
+function Index() {
+  const { loading, isAuthenticated } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    if (loading) return;
+    navigate({ to: isAuthenticated ? "/dashboard" : "/login" });
+  }, [loading, isAuthenticated, navigate]);
+
   return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-      <p className="mt-4 text-lg">
-        Edit <code>src/routes/index.tsx</code> to get started.
-      </p>
+    <div className="flex min-h-screen items-center justify-center bg-background">
+      <LoadingSpinner className="text-primary" />
     </div>
-  )
+  );
 }
