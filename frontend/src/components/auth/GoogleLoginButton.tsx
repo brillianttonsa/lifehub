@@ -5,19 +5,21 @@ import { config } from "@/lib/config";
 import { LoadingSpinner } from "../common/LoadingSpinner";
 
 export function GoogleLoginButton({ onSuccess }: { onSuccess?: () => void }) {
-  const { loginWithGoogle } = useAuth();
+  const { loginWithGoogleCode } = useAuth();
   const [busy, setBusy] = useState(false);
   const [err, setErr] = useState<string | null>(null);
 
   const isMockClient = config.googleClientId === "mock-google-client-id";
 
-  // Real Google OAuth (implicit flow). Only wired up when a real client ID is set.
+  // Real Google OAuth (auth-code flow)
+  // Backend exchanges the code for ID token and verifies it
   const googleLogin = useGoogleLogin({
-    flow: "implicit",
-    onSuccess: async (resp) => {
+    flow: "auth-code",
+    onSuccess: async (codeResponse) => {
       try {
         setBusy(true);
-        await loginWithGoogle(resp.access_token);
+        // Send authorization code to backend for token exchange and verification
+        await loginWithGoogleCode(codeResponse.code);
         onSuccess?.();
       } catch (e: any) {
         setErr(e.message || "Google authentication failed");

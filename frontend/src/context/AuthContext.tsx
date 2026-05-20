@@ -17,6 +17,7 @@ type AuthContextValue = {
   signup: (email: string, password: string, fullName?: string) => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: (token: string) => Promise<void>;
+  loginWithGoogleCode: (code: string) => Promise<void>;
   logout: () => Promise<void>;
   clearError: () => void;
   setUser: (user: AuthUser | null) => void;
@@ -91,6 +92,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  const loginWithGoogleCode = useCallback(async (code: string) => {
+    setError(null);
+    try {
+      const u = await authService.loginWithGoogleCode(code);
+      setUser(u);
+    } catch (e) {
+      const msg = getMessage(e, "Google authentication failed");
+      setError(msg);
+      throw new Error(msg);
+    }
+  }, []);
+
   const logout = useCallback(async () => {
     try {
       await authService.logout();
@@ -108,11 +121,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       signup,
       login,
       loginWithGoogle,
+      loginWithGoogleCode,
       logout,
       clearError: () => setError(null),
       setUser,
     }),
-    [user, loading, error, signup, login, loginWithGoogle, logout],
+    [user, loading, error, signup, login, loginWithGoogle, loginWithGoogleCode, logout],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

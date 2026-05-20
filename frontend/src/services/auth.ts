@@ -29,11 +29,7 @@ export const authService = {
     });
     return data.user;
   },
-  async getGoogleAuthUrl() {
-    const { data } = await api.get<{ authUrl: string }>("/auth/google/auth-url");
-    return data.authUrl;
-  },
-  async googleCallback(code: string) {
+  async loginWithGoogleCode(code: string) {
     const { data } = await api.post<{ user: AuthUser }>("/auth/google/callback", {
       code,
     });
