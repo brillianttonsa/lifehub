@@ -15,6 +15,13 @@
       "when": 1779091860690,
       "tag": "0001_light_ultimates",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1779465282434,
+      "tag": "0002_minor_sprite",
+      "breakpoints": true
     }
   ]
 }
