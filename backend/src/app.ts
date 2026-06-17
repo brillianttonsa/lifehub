@@ -6,10 +6,12 @@ import helmet from 'helmet';
 
 // error
 import { errorHandler } from './middlewares/error.middleware';
-import {authMiddleware} from './middlewares/auth.middleware';
+
 // routes
 import authRoutes from './modules/auth/auth.routes';
-import pocketRoutes from './modules/pocket';
+import projectRoutes from './modules/project/routes/project.routes'
+import entryRoutes from './modules/project/routes/entry.routes'
+
 // middlewares
 import {
   globalLimiter,
@@ -21,6 +23,8 @@ import {
   errorLoggerMiddleware,
   monitoringMiddleware,
 } from './middlewares/logger.middleware';
+
+
 import { env } from './config/env';
 
 const app = express();
@@ -57,7 +61,9 @@ app.use(globalLimiter);
 
 // Routes
 app.use('/api/auth', strictLimiter, authRoutes);
-app.use('/api/pocket', moderateLimiter, authMiddleware, pocketRoutes);
+app.use('/api/projects', moderateLimiter, projectRoutes);
+app.use('/api/project/entries', moderateLimiter, entryRoutes)
+
 
 // Health check
 app.get('/health', (req, res) => {
