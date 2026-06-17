@@ -1,4 +1,4 @@
 export * from "./auth";
 
-// pocket
-export * from "./pocket"
+// project
+export * from "./project"

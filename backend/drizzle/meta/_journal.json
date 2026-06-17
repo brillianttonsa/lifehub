@@ -5,22 +5,8 @@
     {
       "idx": 0,
       "version": "7",
-      "when": 1779019550362,
-      "tag": "0000_secret_naoko",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "7",
-      "when": 1779091860690,
-      "tag": "0001_light_ultimates",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "7",
-      "when": 1779465282434,
-      "tag": "0002_minor_sprite",
+      "when": 1781635820137,
+      "tag": "0000_good_stepford_cuckoos",
       "breakpoints": true
     }
   ]

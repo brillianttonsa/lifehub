@@ -7,7 +7,7 @@ export const users = pgTable('users', {
 
   passwordHash: text('password_hash'),
 
-  fullName: varchar('full_name', { length: 150 }),
+  fullName: varchar('full_name', { length: 150 }).notNull(),
 
   // OAuth fields
   googleId: varchar('google_id', { length: 255 }).unique(),
