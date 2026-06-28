@@ -1,10 +1,16 @@
-import { Sparkles } from "lucide-react";
+import {ProjectModule} from "./features/projects/components/ProjectModule"
 import { useTheme } from "./context/ThemeContext";
 import { Header } from "./components/layout/Header";
 import { LeftPanel } from "./features/auth/components/LeftPanel";
 import { AuthCard } from "./features/auth/AuthCard";
 
 // ─── Main App ────────────────────────────────────────────────────────────────
+const currentUser = {
+  id: "1",
+  name: "Tonsa",
+  email: "tonsa@example.com",
+  role: "owner",
+};
 
 export default function App() {
   const { theme } = useTheme();
@@ -59,6 +65,13 @@ export default function App() {
           <AuthCard />
         </div>
       </main>
+
+      <ProjectModule
+        currentUser={currentUser}
+        onSignOut={() => {
+          console.log("Signing out...");
+        }}
+      />
     </div>
   );
 }
