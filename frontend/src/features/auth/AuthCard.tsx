@@ -1,11 +1,13 @@
 import { useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
-import { useTheme } from "../../context/ThemeContext";
+import { useTheme } from "../../context/useTheme";
 
 // Types & API & Utils
 import { AuthView, FormState, FieldError } from "../../types/auth";
-import { signIn, signUp, sendVerificationCode, verifyCode, resetPassword } from "../../api/auth";
+import { requestPasswordReset, resetPassword } from "./api/authApi";
+import { getApiErrorMessage } from "../../lib/apiClient";
+import { useAuth } from "./context/useAuth";
 import { validateEmail, validatePassword } from "../../utils/validation";
 
 // Shared Elements
@@ -19,6 +21,7 @@ import { viewVariants, transition } from "./constants/variants";
 
 
 export function AuthCard() {
+  const { signIn, signUp } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [view, setView] = useState<AuthView>("signin");
@@ -63,10 +66,10 @@ export function AuthCard() {
 
     setLoading(true);
     try {
-      const res = await signIn(form.email, form.password);
-      showToast(res.message || "Signed in!", "success");
+      await signIn(form.email, form.password);
+      showToast("Signed in!", "success");
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "Sign in failed", "error");
+      showToast(getApiErrorMessage(e), "error");
     } finally {
       setLoading(false);
     }
@@ -84,11 +87,10 @@ export function AuthCard() {
 
     setLoading(true);
     try {
-      const res = await signUp(form.fullName, form.email, form.password);
-      showToast(res.message || "Account created!", "success");
-      setTimeout(() => navigate("signin"), 1500);
+      await signUp(form.fullName, form.email, form.password);
+      showToast("Account created!", "success");
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "Sign up failed", "error");
+      showToast(getApiErrorMessage(e), "error");
     } finally {
       setLoading(false);
     }
@@ -100,12 +102,12 @@ export function AuthCard() {
 
     setLoading(true);
     try {
-      await sendVerificationCode(form.email);
+      await requestPasswordReset(form.email);
       setPendingEmail(form.email);
-      showToast("Verification code sent to your email", "success");
+      showToast("Password reset token requested. Check the backend email flow.", "success");
       setTimeout(() => navigate("verify"), 800);
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "Failed to send code", "error");
+      showToast(getApiErrorMessage(e), "error");
     } finally {
       setLoading(false);
     }
@@ -114,16 +116,8 @@ export function AuthCard() {
   const handleVerify = async () => {
     if (form.code.length < 6) { setErrors({ code: "Enter the 6-digit code" }); return; }
 
-    setLoading(true);
-    try {
-      await verifyCode(pendingEmail, form.code);
-      setVerifiedCode(form.code);
-      navigate("reset");
-    } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "Invalid code", "error");
-    } finally {
-      setLoading(false);
-    }
+    setVerifiedCode(form.code);
+    navigate("reset");
   };
 
   const handleReset = async () => {
@@ -135,11 +129,11 @@ export function AuthCard() {
 
     setLoading(true);
     try {
-      await resetPassword(pendingEmail, verifiedCode, form.newPassword);
+      await resetPassword(verifiedCode, form.newPassword);
       showToast("Password reset! Please sign in.", "success");
       setTimeout(() => navigate("signin"), 1500);
     } catch (e: unknown) {
-      showToast(e instanceof Error ? e.message : "Reset failed", "error");
+      showToast(getApiErrorMessage(e), "error");
     } finally {
       setLoading(false);
     }
