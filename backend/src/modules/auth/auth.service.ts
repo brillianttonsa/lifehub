@@ -18,6 +18,13 @@ export class AuthService {
   static async signup(email: string, password: string, fullName?: string) {
     const hashed = await hashPassword(password);
 
+    const existingUser = await db.query.users.findFirst({
+      where: eq(users.email, email),
+    });
+
+    if (existingUser) {
+      throw new AppError("Email already exists", 409);
+    }
     const [user] = await db
       .insert(users)
       .values({

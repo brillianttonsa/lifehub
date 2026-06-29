@@ -7,16 +7,24 @@ import {
   signup as signupRequest,
 } from '../api/authApi'
 import { AuthContext } from './authContextValue'
+import { getApiErrorMessage } from '../../../lib/apiClient'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)
   const [isBootstrapping, setIsBootstrapping] = useState(true)
+  const [connectionError, setConnectionError] = useState<string | null>(null)
 
   const refreshSession = useCallback(async () => {
     try {
       const currentUser = await getCurrentUser()
+      setConnectionError(null)
       setUser(currentUser)
-    } catch {
+    } catch (error) {
+      if (getApiErrorMessage(error) !== 'Unauthorized') {
+        setConnectionError(getApiErrorMessage(error))
+      } else {
+        setConnectionError(null)
+      }
       setUser(null)
     }
   }, [])
@@ -64,12 +72,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       user,
       isAuthenticated: Boolean(user),
       isBootstrapping,
+      connectionError,
       signIn,
       signUp,
       signOut,
       refreshSession,
     }),
-    [isBootstrapping, refreshSession, signIn, signOut, signUp, user],
+    [connectionError, isBootstrapping, refreshSession, signIn, signOut, signUp, user],
   )
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>

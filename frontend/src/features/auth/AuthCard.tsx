@@ -21,7 +21,7 @@ import { viewVariants, transition } from "./constants/variants";
 
 
 export function AuthCard() {
-  const { signIn, signUp } = useAuth();
+  const { connectionError, signIn, signUp } = useAuth();
   const { theme } = useTheme();
   const isDark = theme === "dark";
   const [view, setView] = useState<AuthView>("signin");
@@ -192,6 +192,12 @@ export function AuthCard() {
               <AnimatePresence>
                 {toast && <Toast message={toast.msg} type={toast.type} />}
               </AnimatePresence>
+
+              {connectionError && (
+                <div className="mb-4 rounded-xl border border-red-500/20 bg-red-500/10 px-4 py-3 text-xs text-red-300">
+                  Backend connection failed: {connectionError}
+                </div>
+              )}
 
               {view === "signin" && (
                 <div className="flex flex-col gap-4">

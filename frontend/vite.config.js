@@ -10,4 +10,14 @@ export default defineConfig({
             '@': path.resolve(__dirname, './src'),
         },
     },
+    server: {
+        proxy: {
+            // Catches /api/... requests from Axios and forwards them to the backend server.
+            '/api': {
+                target: 'http://localhost:4000',
+                changeOrigin: true,
+                secure: false,
+            },
+        },
+    },
 });

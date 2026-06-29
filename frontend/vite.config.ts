@@ -13,9 +13,9 @@ export default defineConfig({
   },
   server: {
     proxy: {
-      // Catches all /api/auth/... requests from Axios and forwards them to your server
+      // Catches /api/... requests from Axios and forwards them to the backend server.
       '/api': {
-        target: 'http://localhost:5000', // <-- Change 5000 to your backend server's port
+        target: 'http://localhost:4000',
         changeOrigin: true,
         secure: false,
       },
