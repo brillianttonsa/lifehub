@@ -1,5 +1,6 @@
 import { useEffect } from 'react'
 import { AlertCircle, CheckCircle2 } from 'lucide-react'
+import { Toast as ToastMessage } from '../../../types/project'
 
 interface ToastProps {
   id: number
@@ -36,7 +37,7 @@ export function Toast({ id, message, type, onClose }: ToastProps) {
   )
 }
 
-export function ToastContainer({ toasts, onClose }: { toasts: any[]; onClose: (id: number) => void }) {
+export function ToastContainer({ toasts, onClose }: { toasts: ToastMessage[]; onClose: (id: number) => void }) {
   return (
     <div className="font-sans">
       {toasts.map((t) => (

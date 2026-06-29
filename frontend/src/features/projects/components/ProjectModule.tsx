@@ -1,6 +1,20 @@
-import { useState, useMemo } from 'react'
-import { Project, Entry, User, Toast, INITIAL_PROJECTS } from '../../../types/project'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Project, Role, Toast, User } from '../../../types/project'
 import { usePermissions } from '../coreFiles/hooks'
+import { getApiErrorMessage } from '../../../lib/apiClient'
+import {
+  addMember,
+  createComment,
+  createEntry,
+  createProject,
+  deleteEntry,
+  deleteProject,
+  listComments,
+  listEntries,
+  listProjects,
+  removeMember,
+  updateMemberRole,
+} from '../api/projectApi'
 import { ProjectList } from './ProjectList'
 import { ProjectDetailCard } from './ProjectDetailCard'
 import { EntriesPanel } from './EntriesPanel'
@@ -21,11 +35,16 @@ interface ProjectModuleProps {
 
 export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
   const [view, setView] = useState<ViewType>('dashboard')
-  const [projects, setProjects] = useState<Project[]>(INITIAL_PROJECTS)
-  const [selectedProjectId, setSelectedProjectId] = useState(INITIAL_PROJECTS[0].id)
-  const [selectedEntryId, setSelectedEntryId] = useState(INITIAL_PROJECTS[0].entries[0]?.id || '')
+  const [projects, setProjects] = useState<Project[]>([])
+  const [selectedProjectId, setSelectedProjectId] = useState('')
+  const [selectedEntryId, setSelectedEntryId] = useState('')
   const [searchQuery, setSearchQuery] = useState('')
   const [toasts, setToasts] = useState<Toast[]>([])
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true)
+  const [isLoadingEntries, setIsLoadingEntries] = useState(false)
+  const [isSavingProject, setIsSavingProject] = useState(false)
+  const [isSavingEntry, setIsSavingEntry] = useState(false)
+  const [isSavingMember, setIsSavingMember] = useState(false)
 
   // Modal states
   const [isCreateProjectModalOpen, setIsCreateProjectModalOpen] = useState(false)
@@ -33,9 +52,6 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
   const [isAddMemberModalOpen, setIsAddMemberModalOpen] = useState(false)
   const [newCommentContent, setNewCommentContent] = useState('')
 
-  const permissions = usePermissions(currentUser.role)
-
-  // Computed values
   const activeProject = useMemo(() => {
     return projects.find((p) => p.id === selectedProjectId) || projects[0]
   }, [projects, selectedProjectId])
@@ -43,6 +59,12 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
   const activeEntry = useMemo(() => {
     return activeProject?.entries.find((e) => e.id === selectedEntryId) || activeProject?.entries[0]
   }, [activeProject, selectedEntryId])
+
+  const activeRole = useMemo<Role>(() => {
+    return activeProject?.members.find((member) => member.id === currentUser.id)?.role ?? 'viewer'
+  }, [activeProject, currentUser.id])
+
+  const permissions = usePermissions(activeRole)
 
   const filteredProjects = useMemo(() => {
     if (!searchQuery.trim()) return projects
@@ -53,163 +75,246 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
     )
   }, [projects, searchQuery])
 
-  // Toast management
-  const showToast = (message: string, type: 'success' | 'error' | 'info' = 'success') => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'success') => {
     const id = Date.now()
     setToasts((prev) => [...prev, { id, message, type }])
-  }
+  }, [])
 
-  const removeToast = (id: number) => {
+  const removeToast = useCallback((id: number) => {
     setToasts((prev) => prev.filter((t) => t.id !== id))
-  }
+  }, [])
+
+  useEffect(() => {
+    let cancelled = false
+
+    async function load() {
+      setIsLoadingProjects(true)
+      try {
+        const nextProjects = await listProjects()
+        if (cancelled) return
+
+        setProjects(nextProjects)
+        setSelectedProjectId((current) => current || nextProjects[0]?.id || '')
+      } catch (error) {
+        if (!cancelled) showToast(getApiErrorMessage(error), 'error')
+      } finally {
+        if (!cancelled) setIsLoadingProjects(false)
+      }
+    }
+
+    load()
+
+    return () => {
+      cancelled = true
+    }
+  }, [showToast])
+
+  useEffect(() => {
+    if (!activeProject) return
+    if (activeProject.entries.length > 0) return
+
+    let cancelled = false
+
+    async function loadProjectEntries() {
+      setIsLoadingEntries(true)
+      try {
+        const entries = await listEntries(activeProject)
+        if (cancelled) return
+
+        setProjects((prev) =>
+          prev.map((project) => (project.id === activeProject.id ? { ...project, entries } : project)),
+        )
+        setSelectedEntryId((current) => current || entries[0]?.id || '')
+      } catch (error) {
+        if (!cancelled) showToast(getApiErrorMessage(error), 'error')
+      } finally {
+        if (!cancelled) setIsLoadingEntries(false)
+      }
+    }
+
+    loadProjectEntries()
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeProject, showToast])
+
+  useEffect(() => {
+    if (!activeProject || !activeEntry) return
+    if (activeEntry.comments.length > 0 || activeEntry.commentCount === 0) return
+
+    let cancelled = false
+
+    async function loadEntryComments() {
+      try {
+        const comments = await listComments(activeEntry, activeProject.members)
+        if (cancelled) return
+
+        setProjects((prev) =>
+          prev.map((project) =>
+            project.id === activeProject.id
+              ? {
+                  ...project,
+                  entries: project.entries.map((entry) =>
+                    entry.id === activeEntry.id ? { ...entry, comments } : entry,
+                  ),
+                }
+              : project,
+          ),
+        )
+      } catch (error) {
+        if (!cancelled) showToast(getApiErrorMessage(error), 'error')
+      }
+    }
+
+    loadEntryComments()
+
+    return () => {
+      cancelled = true
+    }
+  }, [activeEntry, activeProject, showToast])
 
   // Project operations
-  const handleCreateProject = (data: { name: string; description: string }) => {
-    const newId = data.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')
-    const newProject: Project = {
-      id: newId,
-      name: data.name,
-      description: data.description,
-      ownerId: currentUser.id,
-      owner: currentUser.name,
-      status: 'Active',
-      memberCount: 1,
-      createdAt: new Date().toISOString(),
-      createdDate: new Date().toLocaleDateString(),
-      lastActivity: 'Just created',
-      lastActivityDate: new Date().toISOString(),
-      members: [
-        {
-          id: currentUser.id,
-          email: currentUser.email,
-          name: currentUser.name,
-          role: 'owner',
-        },
-      ],
-      entries: [],
+  const handleCreateProject = async (data: { name: string; description: string }) => {
+    setIsSavingProject(true)
+    try {
+      const newProject = await createProject(data)
+      setProjects((prev) => [newProject, ...prev])
+      setSelectedProjectId(newProject.id)
+      setSelectedEntryId('')
+      setIsCreateProjectModalOpen(false)
+      setView('detail')
+      showToast(`Workspace '${data.name}' created successfully.`)
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    } finally {
+      setIsSavingProject(false)
     }
-    setProjects((prev) => [...prev, newProject])
-    setSelectedProjectId(newId)
-    setIsCreateProjectModalOpen(false)
-    setView('detail')
-    showToast(`Workspace '${data.name}' created successfully.`)
   }
 
-  const handleDeleteProject = () => {
+  const handleDeleteProject = async () => {
+    if (!activeProject) return
     if (!permissions.canDeleteProject()) {
       showToast('Administrative clearance validation failed.', 'error')
       return
     }
-    setProjects((prev) => prev.filter((p) => p.id !== selectedProjectId))
-    setSelectedProjectId(projects[0]?.id || '')
-    showToast('Project deleted successfully.')
+    try {
+      await deleteProject(activeProject.id)
+      setProjects((prev) => {
+        const nextProjects = prev.filter((p) => p.id !== activeProject.id)
+        setSelectedProjectId(nextProjects[0]?.id || '')
+        setSelectedEntryId('')
+        return nextProjects
+      })
+      setView('dashboard')
+      showToast('Project deleted successfully.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    }
   }
 
   // Entry operations
-  const handleCreateEntry = (data: { content: string; commentsEnabled: boolean }) => {
+  const handleCreateEntry = async (data: { content: string; commentsEnabled: boolean }) => {
+    if (!activeProject) return
     if (!permissions.canCreateEntry()) {
       showToast('Permission denied to create entries.', 'error')
       return
     }
 
-    const newEntry: Entry = {
-      id: `entry-${Date.now()}`,
-      projectId: activeProject.id,
-      author: currentUser.name,
-      authorId: currentUser.id,
-      role: currentUser.role,
-      date: new Date().toLocaleString(),
-      content: data.content,
-      comments: [],
-      commentsEnabled: data.commentsEnabled,
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
+    setIsSavingEntry(true)
+    try {
+      const newEntry = await createEntry(activeProject, data)
+
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                entries: [newEntry, ...p.entries],
+                lastActivity: 'Just updated',
+                lastActivityDate: newEntry.createdAt,
+              }
+            : p,
+        ),
+      )
+
+      setSelectedEntryId(newEntry.id)
+      setIsCreateEntryModalOpen(false)
+      showToast('Log entry created successfully.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    } finally {
+      setIsSavingEntry(false)
     }
-
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            entries: [newEntry, ...p.entries],
-            lastActivity: 'Just updated',
-            lastActivityDate: new Date().toISOString(),
-          }
-        }
-        return p
-      }),
-    )
-
-    setSelectedEntryId(newEntry.id)
-    setIsCreateEntryModalOpen(false)
-    showToast('Log entry created successfully.')
   }
 
-  const handleDeleteEntry = (entryId: string) => {
+  const handleDeleteEntry = async (entryId: string) => {
+    if (!activeProject) return
     if (!permissions.canDeleteEntry()) {
       showToast('Administrative clearance validation failed.', 'error')
       return
     }
 
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            entries: p.entries.filter((e) => e.id !== entryId),
-          }
-        }
-        return p
-      }),
-    )
-    showToast('Sync log dropped securely.')
+    try {
+      await deleteEntry(activeProject.id, entryId)
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                entries: p.entries.filter((e) => e.id !== entryId),
+              }
+            : p,
+        ),
+      )
+      setSelectedEntryId(activeProject.entries.find((entry) => entry.id !== entryId)?.id || '')
+      showToast('Sync log dropped securely.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    }
   }
 
   // Comment operations
-  const handleAddComment = () => {
-    if (!activeEntry || !permissions.canAddComment()) {
+  const handleAddComment = async () => {
+    if (!activeProject || !activeEntry || !permissions.canAddComment()) {
       showToast('Permission denied to add comments.', 'error')
       return
     }
 
     if (!newCommentContent.trim()) return
 
-    const newComment = {
-      id: `c-${Date.now()}`,
-      entryId: activeEntry.id,
-      author: currentUser.name,
-      authorId: currentUser.id,
-      role: currentUser.role,
-      text: newCommentContent,
-      timestamp: new Date().toLocaleString(),
-    }
+    try {
+      const newComment = await createComment(activeEntry, activeProject.members, newCommentContent)
 
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            entries: p.entries.map((e) => {
-              if (e.id === activeEntry.id) {
-                return {
-                  ...e,
-                  comments: [...e.comments, newComment],
-                }
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                entries: p.entries.map((e) =>
+                  e.id === activeEntry.id
+                    ? {
+                        ...e,
+                        comments: [...e.comments, newComment],
+                        commentCount: (e.commentCount ?? e.comments.length) + 1,
+                      }
+                    : e,
+                ),
               }
-              return e
-            }),
-          }
-        }
-        return p
-      }),
-    )
+            : p,
+        ),
+      )
 
-    setNewCommentContent('')
-    showToast('Feedback thread committed.')
+      setNewCommentContent('')
+      showToast('Feedback thread committed.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    }
   }
 
   // Member operations
-  const handleAddMember = (data: { email: string; role: any }) => {
+  const handleAddMember = async (data: { email: string; role: Role }) => {
+    if (!activeProject) return
     if (!permissions.canManageMembers()) {
       showToast('Administrative authorization denied.', 'error')
       return
@@ -221,69 +326,86 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
       return
     }
 
-    const newMember = {
-      id: `user-${Date.now()}`,
-      email: data.email,
-      name: data.email.split('@')[0].replace('.', ' ').replace(/\b\w/g, (c) => c.toUpperCase()),
-      role: data.role,
+    setIsSavingMember(true)
+    try {
+      const newMember = await addMember(activeProject.id, data)
+
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                members: [...p.members, newMember],
+                memberCount: p.memberCount + 1,
+              }
+            : p,
+        ),
+      )
+
+      setIsAddMemberModalOpen(false)
+      showToast(`Authorized: ${newMember.name} linked as ${data.role}.`)
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    } finally {
+      setIsSavingMember(false)
     }
-
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            members: [...p.members, newMember],
-            memberCount: p.memberCount + 1,
-          }
-        }
-        return p
-      }),
-    )
-
-    setIsAddMemberModalOpen(false)
-    showToast(`Authorized: ${newMember.name} linked as ${data.role}.`)
   }
 
-  const handleChangeRole = (memberEmail: string, newRole: any) => {
+  const handleChangeRole = async (memberEmail: string, newRole: Role) => {
+    if (!activeProject) return
     if (!permissions.canManageMembers()) {
       showToast('Administrative authorization denied.', 'error')
       return
     }
 
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            members: p.members.map((m) => (m.email === memberEmail ? { ...m, role: newRole } : m)),
-          }
-        }
-        return p
-      }),
-    )
-    showToast('Operator permissions map modified.')
+    const member = activeProject.members.find((m) => m.email === memberEmail)
+    if (!member) return
+
+    try {
+      const updatedMember = await updateMemberRole(activeProject.id, member.id, newRole)
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                members: p.members.map((m) => (m.id === updatedMember.id ? updatedMember : m)),
+              }
+            : p,
+        ),
+      )
+      showToast('Operator permissions map modified.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    }
   }
 
-  const handleRemoveMember = (memberEmail: string) => {
+  const handleRemoveMember = async (memberEmail: string) => {
+    if (!activeProject) return
     if (!permissions.canManageMembers()) {
       showToast('Administrative authorization denied.', 'error')
       return
     }
 
-    setProjects((prev) =>
-      prev.map((p) => {
-        if (p.id === activeProject.id) {
-          return {
-            ...p,
-            members: p.members.filter((m) => m.email !== memberEmail),
-            memberCount: Math.max(1, p.memberCount - 1),
-          }
-        }
-        return p
-      }),
-    )
-    showToast('Linked domain operator revoked successfully.')
+    const member = activeProject.members.find((m) => m.email === memberEmail)
+    if (!member) return
+
+    try {
+      await removeMember(activeProject.id, member.id)
+      setProjects((prev) =>
+        prev.map((p) =>
+          p.id === activeProject.id
+            ? {
+                ...p,
+                members: p.members.filter((m) => m.id !== member.id),
+                memberCount: Math.max(1, p.memberCount - 1),
+              }
+            : p,
+        ),
+      )
+      showToast('Linked domain operator revoked successfully.')
+    } catch (error) {
+      showToast(getApiErrorMessage(error), 'error')
+    }
   }
 
   return (
@@ -336,7 +458,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
 
         {/* Navigation Tabs */}
         <div className="flex gap-2 mt-4 border-b border-zinc-100 -mx-6 px-6">
-          {['dashboard', 'projects', 'detail'].map((v: any) => (
+          {(['dashboard', 'projects', 'detail'] as ViewType[]).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
@@ -375,7 +497,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
                 </div>
                 <div className="bg-white border border-zinc-200 rounded-lg p-4">
                   <p className="text-xs font-mono text-zinc-400 font-bold uppercase">Your Role</p>
-                  <p className="text-lg font-bold mt-2 capitalize">{currentUser.role.replace('_', ' ')}</p>
+                  <p className="text-lg font-bold mt-2 capitalize">{activeRole.replace('_', ' ')}</p>
                 </div>
               </div>
 
@@ -393,10 +515,13 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
                   <ProjectList
                     projects={projects.slice(0, 3)}
                     selectedProjectId={selectedProjectId}
+                    isLoading={isLoadingProjects}
                     onSelectProject={(id) => {
                       setSelectedProjectId(id)
+                      setSelectedEntryId('')
                       setView('detail')
                     }}
+                    onCreateProject={() => setIsCreateProjectModalOpen(true)}
                   />
                 </div>
 
@@ -412,7 +537,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
                     </div>
                     <div className="border-t border-zinc-100 pt-3">
                       <p className="font-mono text-[10px] text-zinc-500 uppercase font-bold">System Info</p>
-                      <p className="text-[10.5px] text-zinc-600 mt-2 leading-relaxed">• User: {currentUser.name}</p>
+                      <p className="text-[10.5px] text-zinc-600 mt-2 leading-relaxed">• User: {currentUser.fullName}</p>
                       <p className="text-[10.5px] text-zinc-600">• Email: {currentUser.email}</p>
                     </div>
                   </div>
@@ -440,10 +565,13 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
               <ProjectList
                 projects={filteredProjects}
                 selectedProjectId={selectedProjectId}
+                isLoading={isLoadingProjects}
                 onSelectProject={(id) => {
                   setSelectedProjectId(id)
+                  setSelectedEntryId('')
                   setView('detail')
                 }}
+                onCreateProject={() => setIsCreateProjectModalOpen(true)}
               />
             </div>
           )}
@@ -480,6 +608,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
                     onDeleteEntry={handleDeleteEntry}
                     onCreateEntry={() => setIsCreateEntryModalOpen(true)}
                     canDelete={permissions.canDeleteEntry()}
+                    isLoading={isLoadingEntries}
                   />
                 </div>
 
@@ -522,19 +651,22 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
         isOpen={isCreateProjectModalOpen}
         onClose={() => setIsCreateProjectModalOpen(false)}
         onSubmit={handleCreateProject}
+        isPending={isSavingProject}
       />
 
       <CreateEntryModal
         isOpen={isCreateEntryModalOpen}
         onClose={() => setIsCreateEntryModalOpen(false)}
         onSubmit={handleCreateEntry}
-        currentUserName={currentUser.name}
+        isPending={isSavingEntry}
+        currentUserName={currentUser.fullName}
       />
 
       <AddMemberModal
         isOpen={isAddMemberModalOpen}
         onClose={() => setIsAddMemberModalOpen(false)}
         onSubmit={handleAddMember}
+        isPending={isSavingMember}
       />
 
       {/* Toast Notifications */}
