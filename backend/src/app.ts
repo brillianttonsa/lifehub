@@ -11,6 +11,7 @@ import { errorHandler } from './middlewares/error.middleware';
 import authRoutes from './modules/auth/auth.routes';
 import projectRoutes from './modules/project/routes/project.routes'
 import entryRoutes from './modules/project/routes/entry.routes'
+import pocketRoutes from './modules/pocket'
 
 // middlewares
 import {
@@ -63,6 +64,7 @@ app.use(globalLimiter);
 app.use('/api/auth', strictLimiter, authRoutes);
 app.use('/api/projects', moderateLimiter, projectRoutes);
 app.use('/api/project/entries', moderateLimiter, entryRoutes)
+app.use('/api/pocket', moderateLimiter, pocketRoutes)
 
 
 // Health check
