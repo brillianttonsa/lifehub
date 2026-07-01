@@ -5,19 +5,19 @@ import { useTheme } from "../../context/useTheme";
 
 // Types & API & Utils
 import { AuthView, FormState, FieldError } from "../../types/auth";
-import { requestPasswordReset, resetPassword } from "./api/authApi";
+import { requestPasswordReset, resetPassword } from "../../api/authApi";
 import { getApiErrorMessage } from "../../lib/apiClient";
-import { useAuth } from "./context/useAuth";
+import { useAuth } from "../../context/authcontext/useAuth";
 import { validateEmail, validatePassword } from "../../utils/validation";
 
 // Shared Elements
-import { InputField } from "../../components/ui/InputField";
-import { AuthButton } from "../../components/ui/AuthButton";
-import { TextLink } from "../../components/ui/TextLink";
-import { Toast } from "../../components/ui/Toast";
+import { InputField } from "../ui/InputField";
+import { AuthButton } from "../ui/AuthButton";
+import { TextLink } from "../ui/TextLink";
+import { Toast } from "../ui/Toast";
 
 // utils
-import { viewVariants, transition } from "./constants/variants";
+import { viewVariants, transition } from "../../constants/variants";
 
 
 export function AuthCard() {

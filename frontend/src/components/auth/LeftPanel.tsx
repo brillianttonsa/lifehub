@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
-import { useTheme } from "../../../context/useTheme";
-import { modules } from "../constants/modules";
+import { useTheme } from "../../context/useTheme";
+import { modules } from "../../constants/modules";
 
 export function LeftPanel() {
   const { theme } = useTheme();

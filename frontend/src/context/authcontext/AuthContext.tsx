@@ -5,9 +5,9 @@ import {
   login as loginRequest,
   logout as logoutRequest,
   signup as signupRequest,
-} from '../api/authApi'
+} from '../../api/authApi'
 import { AuthContext } from './authContextValue'
-import { getApiErrorMessage } from '../../../lib/apiClient'
+import { getApiErrorMessage } from '../../lib/apiClient'
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null)

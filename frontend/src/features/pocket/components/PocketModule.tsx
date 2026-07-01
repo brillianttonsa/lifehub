@@ -14,7 +14,7 @@ import {
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
 import { getApiErrorMessage } from '../../../lib/apiClient'
-import { ToastContainer } from '../../projects/components/Toast'
+import { ToastContainer } from '../../projects/components'
 import {
   createActivity,
   createTransaction,
