@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { Link } from 'react-router-dom'
 import { useTheme } from "../../context/useTheme";
 import { modules } from "../../constants/modules";
 
@@ -38,31 +39,41 @@ export function LeftPanel() {
 
       {/* Pillars Feature Grid */}
       <div className="grid grid-cols-2 gap-3">
-        {modules.map((mod, i) => (
-          <motion.div
-            key={mod.name}
-            initial={{ opacity: 0, y: 16 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
-            className={`group relative rounded-xl border ${mod.border} bg-gradient-to-br ${mod.color} p-4 cursor-default transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20`}
-          >
-            <div className={`${mod.accent} mb-2.5 opacity-90 group-hover:opacity-100 transition-opacity`}>
-              <mod.icon size={24} />
-            </div>
-            <h3 
-              className="text-lg font-semibold mb-1 transition-colors duration-300"
-              style={{ color: isDark ? "#f1f5f9" : "#1e293b" }}
+        {modules.map((mod, i) => {
+          const card = (
+            <motion.div
+              key={mod.name}
+              initial={{ opacity: 0, y: 16 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.5, delay: 0.2 + i * 0.08 }}
+              className={`group relative rounded-xl border ${mod.border} bg-gradient-to-br ${mod.color} p-4 transition-all duration-300 hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/20`}
             >
-              {mod.name}
-            </h3>
-            <p 
-              className="text-sm leading-normal transition-colors duration-300"
-              style={{ color: isDark ? "#94a3b8" : "#64748b" }}
-            >
-              {mod.desc}
-            </p>
-          </motion.div>
-        ))}
+              <div className={`${mod.accent} mb-2.5 opacity-90 group-hover:opacity-100 transition-opacity`}>
+                <mod.icon size={24} />
+              </div>
+              <h3 
+                className="text-lg font-semibold mb-1 transition-colors duration-300"
+                style={{ color: isDark ? "#f1f5f9" : "#1e293b" }}
+              >
+                {mod.name}
+              </h3>
+              <p 
+                className="text-sm leading-normal transition-colors duration-300"
+                style={{ color: isDark ? "#94a3b8" : "#64748b" }}
+              >
+                {mod.desc}
+              </p>
+            </motion.div>
+          )
+
+          return mod.name === 'Plan' ? (
+            <Link key={mod.name} to="/plans" className="block">
+              {card}
+            </Link>
+          ) : (
+            card
+          )
+        })}
       </div>
     </div>
   );
