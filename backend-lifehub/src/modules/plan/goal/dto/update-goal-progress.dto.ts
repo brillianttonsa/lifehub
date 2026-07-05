@@ -1,6 +1,6 @@
 import { IsInt, Min, Max } from 'class-validator';
 
-export class UpdateProgressDto {
+export class UpdateGoalProgressDto {
   @IsInt()
   @Min(0)
   @Max(100)
