@@ -428,21 +428,16 @@ export default function ProjectModule({ currentUser, onSignOut }: ProjectModuleP
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+      <header className="rounded-2xl bg-white shadow-sm m-4 p-4">
         <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
-          <div className="flex items-center gap-3">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 text-sm font-semibold text-white">
-              LH
-            </div>
+                     
             <div>
               <p className="text-sm font-medium uppercase tracking-[0.24em] text-indigo-600">Project</p>
               <h1 className="text-lg font-semibold tracking-tight text-slate-900">Team projects</h1>
             </div>
-          </div>
+          
 
-          <div className="flex items-center gap-3">
-            {view === 'list' && (
-              <div className="relative hidden md:block">
+              <div className="sm:block">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
                 <input
                   type="text"
@@ -452,18 +447,9 @@ export default function ProjectModule({ currentUser, onSignOut }: ProjectModuleP
                   className="rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-300"
                 />
               </div>
-            )}
+            
 
-            {onSignOut && (
-              <button
-                onClick={onSignOut}
-                className="rounded-full border border-slate-200 bg-white p-2.5 text-slate-600 shadow-sm transition hover:bg-slate-100 hover:text-slate-900"
-                title="Sign Out"
-              >
-                <Settings size={18} />
-              </button>
-            )}
-          </div>
+        
         </div>
       </header>
 
