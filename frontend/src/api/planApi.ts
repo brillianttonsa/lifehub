@@ -1,4 +1,4 @@
-import { apiClient } from '../../../lib/apiClient'
+import { apiClient } from '../lib/apiClient'
 import {
   CreatePlanInput,
   Plan,
@@ -6,7 +6,7 @@ import {
   PlanListResponse,
   UpdatePlanInput,
   UpdateProgressInput,
-} from '../../../types/plan'
+} from '../types/plan'
 
 export async function getPlanDashboard(): Promise<PlanDashboard> {
   const response = await apiClient.get<PlanDashboard>('/plans/dashboard')

@@ -16,6 +16,7 @@ import {
   AlertCircle,
   CheckCircle2,
 } from 'lucide-react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Project,
   Role,
@@ -25,8 +26,8 @@ import {
   User,
   Toast as ToastMessage,
   PERMISSION_MAP,
-} from '../../../types/project'
-import { getApiErrorMessage } from '../../../lib/apiClient'
+} from '../types/project'
+import { getApiErrorMessage } from '../lib/apiClient'
 import {
   addMember,
   createComment,
@@ -118,7 +119,7 @@ export const getRoleColor = (role: Role): string => {
     owner: 'bg-indigo-50 text-indigo-700 border-indigo-200',
     contributor: 'bg-blue-50 text-blue-700 border-blue-200',
     viewer_comment: 'bg-amber-50 text-amber-700 border-amber-200',
-    viewer: 'bg-zinc-50 text-zinc-700 border-zinc-200',
+    viewer: 'bg-slate-100 text-slate-700 border-slate-200',
   }
   return colors[role]
 }
@@ -135,11 +136,11 @@ export const getRoleLabel = (role: Role): string => {
 
 export const getStatusColor = (status: string): string => {
   const colors: Record<string, string> = {
-    Active: 'bg-emerald-50 text-emerald-700 border-emerald-200',
-    Maintenance: 'bg-amber-50 text-amber-700 border-amber-200',
-    Archived: 'bg-zinc-50 text-zinc-700 border-zinc-200',
+    Active: 'bg-emerald-100 text-emerald-800 border-emerald-200',
+    Maintenance: 'bg-amber-100 text-amber-800 border-amber-200',
+    Archived: 'bg-zinc-100 text-zinc-700 border-zinc-200',
   }
-  return colors[status] || 'bg-zinc-50 text-zinc-700 border-zinc-200'
+  return colors[status] || 'bg-slate-100 text-slate-700 border-slate-200'
 }
 
 // ============================================================================
@@ -161,33 +162,36 @@ export function Toast({ id, message, type, onClose }: ToastProps) {
 
   const bgStyle =
     type === 'error'
-      ? 'bg-red-50 border-red-200 text-red-900'
+      ? 'bg-rose-50 border-rose-200 text-rose-900'
       : type === 'success'
         ? 'bg-emerald-50 border-emerald-200 text-emerald-900'
-        : 'bg-blue-50 border-blue-200 text-blue-900'
+        : 'bg-indigo-50 border-indigo-200 text-indigo-900'
 
   const Icon = type === 'error' ? AlertCircle : CheckCircle2
 
   return (
-    <div
-      className={`fixed bottom-4 right-4 z-50 flex items-center gap-2.5 px-4 py-3 rounded-lg border shadow-lg transition-all duration-300 animate-slide-in ${bgStyle}`}
+    <motion.div
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      exit={{ opacity: 0, y: 12 }}
+      className={`fixed bottom-4 right-4 z-50 flex items-center gap-2.5 rounded-2xl border px-4 py-3 text-sm font-medium shadow-lg ${bgStyle}`}
     >
       <Icon size={18} />
-      <span className="text-xs font-medium tracking-tight">{message}</span>
-      <button onClick={() => onClose(id)} className="ml-2 font-bold text-lg opacity-50 hover:opacity-100">
+      <span>{message}</span>
+      <button onClick={() => onClose(id)} className="ml-2 text-lg font-bold opacity-50 hover:opacity-100">
         ×
       </button>
-    </div>
+    </motion.div>
   )
 }
 
 export function ToastContainer({ toasts, onClose }: { toasts: ToastMessage[]; onClose: (id: number) => void }) {
   return (
-    <div className="font-sans">
+    <AnimatePresence>
       {toasts.map((t) => (
         <Toast key={t.id} id={t.id} message={t.message} type={t.type} onClose={onClose} />
       ))}
-    </div>
+    </AnimatePresence>
   )
 }
 
@@ -214,10 +218,10 @@ export function ProjectList({
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="border border-zinc-200 rounded-lg p-4 bg-white space-y-2 animate-pulse">
-            <div className="h-4 bg-zinc-200 rounded w-1/3"></div>
-            <div className="h-3 bg-zinc-200 rounded w-full"></div>
-            <div className="h-3 bg-zinc-200 rounded w-2/3"></div>
+          <div key={i} className="animate-pulse space-y-2 rounded-3xl border border-slate-200 bg-white p-5">
+            <div className="h-4 w-1/3 rounded-full bg-slate-200"></div>
+            <div className="h-3 w-full rounded-full bg-slate-100"></div>
+            <div className="h-3 w-2/3 rounded-full bg-slate-100"></div>
           </div>
         ))}
       </div>
@@ -226,15 +230,15 @@ export function ProjectList({
 
   if (projects.length === 0) {
     return (
-      <div className="text-center py-12 border border-dashed border-zinc-200 rounded-lg bg-zinc-50">
-        <Folder className="w-8 h-8 text-zinc-400 mx-auto" />
-        <p className="text-xs text-zinc-500 font-medium mt-2">No active database directory nodes linked.</p>
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+        <Folder className="mx-auto h-8 w-8 text-slate-400" />
+        <p className="mt-2 text-sm text-slate-500">No projects yet. Create one to get started.</p>
         {onCreateProject && (
           <button
             onClick={onCreateProject}
-            className="mt-4 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-bold px-3 py-1.5 rounded-md transition-all"
+            className="mt-4 inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
           >
-            Create Your First Project
+            <Plus size={16} /> Create your first project
           </button>
         )}
       </div>
@@ -244,36 +248,37 @@ export function ProjectList({
   return (
     <div className="grid grid-cols-1 gap-4">
       {projects.map((project) => (
-        <button
+        <motion.button
           key={project.id}
+          whileHover={{ y: -2 }}
           onClick={() => onSelectProject(project.id)}
-          className={`border rounded-lg p-5 bg-white transition-all cursor-pointer text-left hover:shadow-sm ${
-            selectedProjectId === project.id ? 'border-zinc-400 bg-zinc-50' : 'border-zinc-200 hover:border-zinc-300'
+          className={`rounded-3xl border bg-white p-5 text-left shadow-sm transition ${
+            selectedProjectId === project.id ? 'border-indigo-300 bg-indigo-50/40' : 'border-slate-200 hover:border-slate-300'
           }`}
         >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-            <div className="space-y-1 flex-1">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div className="flex-1 space-y-2">
               <div className="flex items-center gap-2">
-                <Folder size={16} className="text-zinc-500" />
-                <h3 className="font-bold text-base text-zinc-950">{project.name}</h3>
+                <Folder size={16} className="text-indigo-500" />
+                <h3 className="text-base font-semibold text-slate-900">{project.name}</h3>
               </div>
-              <p className="text-xs text-zinc-500 font-normal max-w-2xl">{project.description}</p>
+              <p className="max-w-2xl text-sm text-slate-600">{project.description}</p>
             </div>
 
-            <div className="flex items-center gap-4 text-xs font-mono shrink-0">
+            <div className="flex shrink-0 items-center gap-4 text-sm">
               <div className="flex flex-col text-right">
-                <span className="text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Authorized Tiers</span>
-                <span className="text-zinc-800 font-semibold flex items-center gap-1">
-                  <Users size={14} /> {project.memberCount} Operators
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Members</span>
+                <span className="flex items-center gap-1 font-semibold text-slate-800">
+                  <Users size={14} /> {project.memberCount}
                 </span>
               </div>
-              <div className="flex flex-col text-right border-l border-zinc-200 pl-4">
-                <span className="text-zinc-400 text-[10px] font-bold uppercase tracking-wider">Creation Timestamp</span>
-                <span className="text-zinc-800 font-semibold">{formatDate(project.createdAt)}</span>
+              <div className="flex flex-col border-l border-slate-200 pl-4 text-right">
+                <span className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Created</span>
+                <span className="font-semibold text-slate-800">{formatDate(project.createdAt)}</span>
               </div>
               <div className="flex items-center">
                 <span
-                  className={`text-[10px] px-2 py-0.5 rounded font-bold uppercase tracking-wider border ${getStatusColor(project.status)}`}
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold ${getStatusColor(project.status)}`}
                 >
                   {project.status}
                 </span>
@@ -281,13 +286,13 @@ export function ProjectList({
             </div>
           </div>
 
-          <div className="mt-3 pt-3 border-t border-zinc-100 flex justify-between items-center text-[10.5px] font-mono text-zinc-400">
+          <div className="mt-3 flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-400">
             <span>{project.memberCount} members</span>
             <span className="flex items-center gap-1">
               <Calendar size={12} /> {project.lastActivity}
             </span>
           </div>
-        </button>
+        </motion.button>
       ))}
     </div>
   )
@@ -305,37 +310,39 @@ interface ProjectDetailCardProps {
 
 export function ProjectDetailCard({ project, onDelete, deletePending = false }: ProjectDetailCardProps) {
   return (
-    <article className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 space-y-4">
-      <div className="space-y-2 border-b border-zinc-200 pb-4">
+    <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="space-y-2 border-b border-slate-100 pb-4">
         <div className="flex items-start gap-2">
-          <Activity size={18} className="text-zinc-600 shrink-0 mt-0.5" />
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <Activity size={18} />
+          </div>
           <div>
-            <h3 className="font-bold text-sm text-zinc-950">{project.name}</h3>
-            <p className="text-[11px] text-zinc-500 leading-relaxed mt-1">{project.description}</p>
+            <h3 className="text-sm font-semibold text-slate-900">{project.name}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">{project.description}</p>
           </div>
         </div>
       </div>
 
-      <dl className="space-y-3 text-[11px]">
+      <dl className="space-y-3 text-sm">
         <div className="flex justify-between">
-          <dt className="font-mono font-bold text-zinc-500 uppercase tracking-wider">Created</dt>
-          <dd className="text-zinc-700 font-medium">{formatDate(project.createdAt)}</dd>
+          <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Created</dt>
+          <dd className="font-medium text-slate-700">{formatDate(project.createdAt)}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="font-mono font-bold text-zinc-500 uppercase tracking-wider">Owner</dt>
-          <dd className="text-zinc-700 font-medium">{project.owner || 'Unknown'}</dd>
+          <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Owner</dt>
+          <dd className="font-medium text-slate-700">{project.owner || 'Unknown'}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="font-mono font-bold text-zinc-500 uppercase tracking-wider">Members</dt>
-          <dd className="text-zinc-700 font-medium">{project.memberCount}</dd>
+          <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Members</dt>
+          <dd className="font-medium text-slate-700">{project.memberCount}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="font-mono font-bold text-zinc-500 uppercase tracking-wider">Entries</dt>
-          <dd className="text-zinc-700 font-medium">{project.entries.length}</dd>
+          <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Entries</dt>
+          <dd className="font-medium text-slate-700">{project.entries.length}</dd>
         </div>
         <div className="flex justify-between">
-          <dt className="font-mono font-bold text-zinc-500 uppercase tracking-wider">Last Activity</dt>
-          <dd className="text-zinc-700 font-medium">{project.lastActivity || 'Never'}</dd>
+          <dt className="text-xs font-semibold uppercase tracking-[0.2em] text-slate-400">Last activity</dt>
+          <dd className="font-medium text-slate-700">{project.lastActivity || 'Never'}</dd>
         </div>
       </dl>
 
@@ -343,10 +350,10 @@ export function ProjectDetailCard({ project, onDelete, deletePending = false }: 
         <button
           onClick={onDelete}
           disabled={deletePending}
-          className="w-full bg-red-50 hover:bg-red-100 disabled:bg-zinc-100 text-red-600 disabled:text-zinc-400 font-bold text-xs py-2 rounded transition-all flex items-center justify-center gap-1.5 border border-red-200 disabled:border-zinc-200"
+          className="flex w-full items-center justify-center gap-1.5 rounded-2xl border border-rose-200 bg-rose-50 py-3 text-sm font-semibold text-rose-700 transition hover:bg-rose-100 disabled:cursor-not-allowed disabled:border-slate-200 disabled:bg-slate-100 disabled:text-slate-400"
         >
           <Trash2 size={14} />
-          {deletePending ? 'Deleting...' : 'Delete Project'}
+          {deletePending ? 'Deleting…' : 'Delete project'}
         </button>
       )}
     </article>
@@ -380,10 +387,10 @@ export function EntriesPanel({
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="border border-zinc-200 rounded-lg p-4 bg-white space-y-3 animate-pulse">
-            <div className="h-4 bg-zinc-200 rounded w-2/3"></div>
-            <div className="h-3 bg-zinc-200 rounded w-full"></div>
-            <div className="h-2 bg-zinc-200 rounded w-1/2"></div>
+          <div key={i} className="animate-pulse space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+            <div className="h-4 w-2/3 rounded-full bg-slate-200"></div>
+            <div className="h-3 w-full rounded-full bg-slate-100"></div>
+            <div className="h-2 w-1/2 rounded-full bg-slate-100"></div>
           </div>
         ))}
       </div>
@@ -392,15 +399,15 @@ export function EntriesPanel({
 
   if (entries.length === 0) {
     return (
-      <div className="text-center py-16 border-2 border-dashed border-zinc-200 rounded-lg bg-zinc-50">
-        <BookOpen className="w-8 h-8 text-zinc-400 mx-auto" />
-        <p className="text-xs text-zinc-500 font-medium mt-2">Active log ledger is empty for this domain node.</p>
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center">
+        <BookOpen className="mx-auto h-8 w-8 text-slate-400" />
+        <p className="mt-2 text-sm text-slate-500">No entries yet for this project.</p>
         {onCreateEntry && (
           <button
             onClick={onCreateEntry}
-            className="mt-4 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-bold px-3 py-1.5 rounded-md transition-all flex items-center gap-1 mx-auto"
+            className="mx-auto mt-4 flex items-center gap-1.5 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500"
           >
-            <Plus size={14} /> Initialize First Entry
+            <Plus size={14} /> Write the first entry
           </button>
         )}
       </div>
@@ -410,39 +417,42 @@ export function EntriesPanel({
   return (
     <div className="space-y-4">
       {entries.map((entry) => (
-        <div
+        <motion.div
           key={entry.id}
+          whileHover={{ y: -2 }}
           onClick={() => onSelectEntry(entry.id)}
-          className={`border rounded-lg p-5 space-y-3 shadow-sm transition-all cursor-pointer ${
+          className={`cursor-pointer space-y-3 rounded-3xl border p-5 shadow-sm transition ${
             selectedEntryId === entry.id
-              ? 'border-zinc-400 bg-zinc-50'
-              : 'border-zinc-200 bg-white hover:border-zinc-300'
+              ? 'border-indigo-300 bg-indigo-50/40'
+              : 'border-slate-200 bg-white hover:border-slate-300'
           }`}
         >
           {/* Entry Metadata */}
-          <div className="flex justify-between items-start gap-2 text-xs">
+          <div className="flex items-start justify-between gap-2 text-sm">
             <div className="flex items-center gap-2">
-              <div className="w-5 h-5 rounded-full bg-zinc-800 text-white font-mono flex items-center justify-center text-[10px] font-bold">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
                 {entry.author.substring(0, 2).toUpperCase()}
               </div>
               <div>
-                <span className="font-bold text-zinc-900">{entry.author}</span>
-                <span className={`text-[9.5px] uppercase tracking-wider font-bold ml-2 px-1.5 py-0.5 rounded border ${getRoleColor(entry.role)}`}>
+                <span className="font-semibold text-slate-900">{entry.author}</span>
+                <span
+                  className={`ml-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${getRoleColor(entry.role)}`}
+                >
                   {entry.role.replace('_', ' ')}
                 </span>
               </div>
             </div>
-            <span className="font-mono text-zinc-400 text-[10.5px]">{entry.date}</span>
+            <span className="text-xs text-slate-400">{entry.date}</span>
           </div>
 
           {/* Entry Content */}
-          <p className="text-xs text-zinc-700 leading-relaxed font-normal line-clamp-3">{entry.content}</p>
+          <p className="line-clamp-3 text-sm leading-relaxed text-slate-600">{entry.content}</p>
 
           {/* Actions Footer */}
-          <div className="pt-3 border-t border-zinc-100 flex items-center justify-between text-xs text-zinc-500 font-mono">
-            <button className="hover:text-zinc-950 flex items-center gap-1 transition-all">
+          <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500">
+            <button className="flex items-center gap-1 transition hover:text-slate-900">
               <MessageSquare size={14} />
-              <span>{entry.comments.length} Comments</span>
+              <span>{entry.comments.length} comments</span>
             </button>
 
             {canDelete && onDeleteEntry && (
@@ -451,13 +461,13 @@ export function EntriesPanel({
                   e.stopPropagation()
                   onDeleteEntry(entry.id)
                 }}
-                className="hover:text-red-600 flex items-center text-red-500 transition-all gap-1 font-bold"
+                className="flex items-center gap-1 font-semibold text-rose-600 transition hover:text-rose-700"
               >
-                <Trash2 size={14} /> Drop
+                <Trash2 size={14} /> Remove
               </button>
             )}
           </div>
-        </div>
+        </motion.div>
       ))}
     </div>
   )
@@ -497,58 +507,60 @@ export function CommentsCard({
 
   if (!entry) {
     return (
-      <article className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 text-zinc-500">
+      <article className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+        <div className="flex items-center gap-2 text-slate-500">
           <MessageSquareText size={18} />
-          <p className="text-xs font-medium">Select an entry to view comments</p>
+          <p className="text-sm">Select an entry to view comments</p>
         </div>
       </article>
     )
   }
 
   return (
-    <article className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 space-y-4">
-      <div className="border-b border-zinc-200 pb-3">
+    <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <MessageSquareText size={18} className="text-zinc-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <MessageSquareText size={18} />
+          </div>
           <div>
-            <h3 className="font-bold text-sm text-zinc-950">Comments</h3>
-            <p className="text-[10.5px] text-zinc-500 mt-0.5">
+            <h3 className="text-sm font-semibold text-slate-900">Comments</h3>
+            <p className="mt-0.5 text-xs text-slate-500">
               {entry.commentsEnabled ? `Entry ${entry.id}` : 'Comments disabled for this entry'}
             </p>
           </div>
         </div>
       </div>
 
-      <div className="space-y-3 max-h-64 overflow-y-auto">
+      <div className="max-h-64 space-y-3 overflow-y-auto">
         {comments.length === 0 && (
-          <p className="text-[11px] text-zinc-400 font-medium text-center py-4">No comments mapped to this thread loop yet.</p>
+          <p className="py-4 text-center text-xs text-slate-400">No comments on this entry yet.</p>
         )}
 
         {isLoading && (
           <div className="space-y-2">
             {[1, 2].map((i) => (
-              <div key={i} className="bg-white rounded p-2 animate-pulse space-y-1">
-                <div className="h-3 bg-zinc-200 rounded w-2/3"></div>
-                <div className="h-2 bg-zinc-200 rounded w-full"></div>
+              <div key={i} className="animate-pulse space-y-1 rounded-2xl bg-slate-50 p-3">
+                <div className="h-3 w-2/3 rounded-full bg-slate-200"></div>
+                <div className="h-2 w-full rounded-full bg-slate-100"></div>
               </div>
             ))}
           </div>
         )}
 
         {comments.map((comment) => (
-          <div key={comment.id} className="text-xs border-b border-zinc-100 pb-2.5 last:border-0">
-            <div className="flex justify-between font-mono text-[10px] text-zinc-400 mb-1">
+          <div key={comment.id} className="rounded-2xl bg-slate-50 p-3 text-sm last:border-0">
+            <div className="mb-1 flex justify-between text-xs text-slate-400">
               <span>
-                <strong className="text-zinc-700">{comment.author}</strong> ({comment.role.replace('_', ' ')})
+                <strong className="text-slate-700">{comment.author}</strong> ({comment.role.replace('_', ' ')})
               </span>
               <span>{comment.timestamp}</span>
             </div>
-            <p className="text-zinc-600 leading-normal">{comment.text}</p>
+            <p className="leading-normal text-slate-600">{comment.text}</p>
             {onDeleteComment && (
               <button
                 onClick={() => onDeleteComment(comment.id)}
-                className="text-[9px] text-red-500 hover:text-red-700 mt-1 font-bold"
+                className="mt-1 text-xs font-semibold text-rose-500 hover:text-rose-700"
               >
                 Delete
               </button>
@@ -559,25 +571,25 @@ export function CommentsCard({
 
       {/* Comment Form */}
       {entry.commentsEnabled ? (
-        <form onSubmit={handleSubmit} className="pt-3 border-t border-zinc-200 space-y-2">
+        <form onSubmit={handleSubmit} className="space-y-2 border-t border-slate-100 pt-3">
           <textarea
             value={newCommentContent}
             onChange={(e) => onCommentContentChange?.(e.target.value)}
-            placeholder="Write administrative feedback..."
-            className="w-full px-3 py-1.5 text-xs bg-white rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-900 resize-none min-h-20"
+            placeholder="Write a comment..."
+            className="min-h-20 w-full resize-none rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
           />
           <button
             type="submit"
             disabled={!canComment || !newCommentContent.trim()}
-            className="w-full bg-zinc-900 hover:bg-zinc-800 disabled:bg-zinc-400 text-white px-3 py-1.5 text-xs font-bold rounded transition-all flex items-center justify-center gap-1.5"
+            className="flex w-full items-center justify-center gap-1.5 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:bg-slate-300"
           >
-            <Send size={12} />
-            Post Comment
+            <Send size={14} />
+            Post comment
           </button>
         </form>
       ) : (
-        <div className="text-[10px] text-zinc-400 font-mono mt-2 bg-zinc-100 border border-zinc-200 rounded px-2.5 py-1">
-          🔒 Comment permission level restricted
+        <div className="mt-2 rounded-2xl bg-slate-50 px-3 py-2 text-xs text-slate-400">
+          Comments are restricted for your role on this entry
         </div>
       )}
     </article>
@@ -606,44 +618,49 @@ export function MembersPanel({
   currentUserEmail = '',
 }: MembersPanelProps) {
   return (
-    <article className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 space-y-4">
-      <div className="flex justify-between items-center border-b border-zinc-200 pb-3">
+    <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="flex items-center justify-between border-b border-slate-100 pb-3">
         <div className="flex items-center gap-2">
-          <Users size={18} className="text-zinc-600" />
+          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+            <Users size={18} />
+          </div>
           <div>
-            <h4 className="font-bold text-sm text-zinc-950">Operator Permissions</h4>
-            <p className="text-[10.5px] text-zinc-500 mt-0.5">{members.length} total members</p>
+            <h4 className="text-sm font-semibold text-slate-900">Members</h4>
+            <p className="mt-0.5 text-xs text-slate-500">{members.length} total members</p>
           </div>
         </div>
         {canManageMembers && onAddMember && (
-          <button onClick={onAddMember} className="text-[11px] font-bold text-zinc-900 hover:underline">
-            [+] Add
+          <button onClick={onAddMember} className="text-sm font-semibold text-indigo-600 hover:text-indigo-500">
+            + Add
           </button>
         )}
       </div>
 
       <div className="space-y-3">
-        {members.length === 0 && <p className="text-[11px] text-zinc-400 text-center py-4">No members yet</p>}
+        {members.length === 0 && <p className="py-4 text-center text-xs text-slate-400">No members yet</p>}
 
         {members.map((member) => (
-          <div key={member.email} className="flex items-center justify-between text-xs pb-3 border-b border-zinc-100 last:border-0 last:pb-0">
-            <div className="flex items-center gap-2 flex-1">
-              <div className="w-7 h-7 rounded-full bg-zinc-700 text-white font-bold flex items-center justify-center text-[10px]">
+          <div
+            key={member.email}
+            className="flex items-center justify-between border-b border-slate-100 pb-3 text-sm last:border-0 last:pb-0"
+          >
+            <div className="flex flex-1 items-center gap-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-white">
                 {member.name?.substring(0, 1).toUpperCase() || member.email.substring(0, 1).toUpperCase()}
               </div>
-              <div className="flex-1 min-w-0">
-                <strong className="text-zinc-900 block truncate">{member.name}</strong>
-                <span className="text-[9.5px] font-mono text-zinc-400 truncate">{member.email}</span>
+              <div className="min-w-0 flex-1">
+                <strong className="block truncate text-slate-900">{member.name}</strong>
+                <span className="truncate text-xs text-slate-400">{member.email}</span>
               </div>
             </div>
 
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex shrink-0 items-center gap-1.5">
               {canManageMembers && member.email !== currentUserEmail ? (
                 <div className="flex items-center gap-1">
                   <select
                     value={member.role}
                     onChange={(e) => onChangeRole?.(member.email, e.target.value as Role)}
-                    className="text-[9.5px] font-mono font-bold uppercase bg-white border border-zinc-200 rounded py-0.5 px-1 focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                    className="rounded-full border border-slate-200 bg-white px-2 py-1 text-xs font-semibold uppercase text-slate-700 outline-none"
                   >
                     <option value="owner">Owner</option>
                     <option value="contributor">Contributor</option>
@@ -653,15 +670,17 @@ export function MembersPanel({
                   {onRemoveMember && (
                     <button
                       onClick={() => onRemoveMember(member.email)}
-                      className="text-red-500 hover:text-red-700 font-bold px-1"
-                      title="Revoke Node Access"
+                      className="px-1 font-bold text-rose-500 hover:text-rose-700"
+                      title="Remove member"
                     >
                       ×
                     </button>
                   )}
                 </div>
               ) : (
-                <span className={`text-[10px] font-mono font-bold uppercase rounded px-2 py-0.5 border ${getRoleColor(member.role)}`}>
+                <span
+                  className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase ${getRoleColor(member.role)}`}
+                >
                   {getRoleLabel(member.role)}
                 </span>
               )}
@@ -698,63 +717,76 @@ export function CreateProjectModal({ isOpen, onClose, onSubmit, isPending = fals
     }
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-md bg-white border border-zinc-200 rounded-lg p-6 shadow-xl space-y-4">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-          <h3 className="font-bold text-sm text-zinc-900 uppercase font-mono tracking-tight flex items-center gap-2">
-            <Plus size={16} /> Link New Local Sync Domain
-          </h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 font-bold text-lg">
-            ×
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            className="w-full max-w-md space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">New project</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">Create a project</h3>
+              </div>
+              <button onClick={onClose} className="text-lg font-bold text-slate-400 hover:text-slate-900">
+                ×
+              </button>
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Sync Directory Name</label>
-            <input
-              type="text"
-              required
-              placeholder="e.g., DHIS2 Integration System"
-              value={formData.name}
-              onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-              className="w-full px-3 py-1.5 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-950 focus:bg-white"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Project name</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g., DHIS2 Integration System"
+                  value={formData.name}
+                  onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
+                />
+              </div>
 
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Description and Compliance Notes</label>
-            <textarea
-              required
-              placeholder="Provide scope, data access structures, or compliance guidelines..."
-              value={formData.description}
-              onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-              className="w-full h-24 px-3 py-1.5 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-950 focus:bg-white resize-none"
-            />
-          </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Description</label>
+                <textarea
+                  required
+                  placeholder="Provide scope, data access structures, or notes..."
+                  value={formData.description}
+                  onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                  className="h-24 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
+                />
+              </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold rounded text-xs transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-3 py-1.5 bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-bold rounded text-xs transition-all"
-            >
-              {isPending ? 'Creating...' : 'Commit Domain Map'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isPending ? 'Creating…' : 'Create project'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -784,71 +816,84 @@ export function CreateEntryModal({ isOpen, onClose, onSubmit, isPending = false,
     }
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-lg bg-white border border-zinc-200 rounded-lg p-6 shadow-xl space-y-4">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-          <h3 className="font-bold text-sm text-zinc-900 uppercase font-mono tracking-tight flex items-center gap-2">
-            📝 Commit Log to Node
-          </h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 font-bold text-lg">
-            ×
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            className="w-full max-w-lg space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">New entry</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">Write a log entry</h3>
+              </div>
+              <button onClick={onClose} className="text-lg font-bold text-slate-400 hover:text-slate-900">
+                ×
+              </button>
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Author Name</label>
-            <input
-              type="text"
-              disabled
-              value={currentUserName}
-              className="w-full px-3 py-1.5 rounded border border-zinc-200 bg-zinc-50 text-zinc-400 cursor-not-allowed font-mono text-xs"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Author</label>
+                <input
+                  type="text"
+                  disabled
+                  value={currentUserName}
+                  className="w-full cursor-not-allowed rounded-xl border border-slate-200 bg-slate-100 px-4 py-3 text-sm text-slate-400"
+                />
+              </div>
 
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Active Stream Entry Logs</label>
-            <textarea
-              required
-              placeholder="Document system updates, optimization milestones, or regional validation results..."
-              value={formData.content}
-              onChange={(e) => setFormData({ ...formData, content: e.target.value })}
-              className="w-full h-32 px-3 py-1.5 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-950 focus:bg-white resize-none leading-relaxed"
-            />
-          </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Entry content</label>
+                <textarea
+                  required
+                  placeholder="Document updates, milestones, or notes..."
+                  value={formData.content}
+                  onChange={(e) => setFormData({ ...formData, content: e.target.value })}
+                  className="h-32 w-full resize-none rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm leading-relaxed text-slate-900 outline-none focus:border-indigo-300"
+                />
+              </div>
 
-          <div className="flex items-center justify-between p-2 bg-zinc-50 border border-zinc-200 rounded">
-            <span className="font-mono text-[11px] text-zinc-500 font-bold">ALLOW COLLABORATIVE COMMENTS</span>
-            <input
-              type="checkbox"
-              checked={formData.commentsEnabled}
-              onChange={(e) => setFormData({ ...formData, commentsEnabled: e.target.checked })}
-              className="w-4 h-4 rounded text-zinc-950 focus:ring-zinc-950 border-zinc-300"
-            />
-          </div>
+              <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                <span className="text-sm font-medium text-slate-600">Allow comments on this entry</span>
+                <input
+                  type="checkbox"
+                  checked={formData.commentsEnabled}
+                  onChange={(e) => setFormData({ ...formData, commentsEnabled: e.target.checked })}
+                  className="h-4 w-4 rounded border-slate-300 text-indigo-600 focus:ring-indigo-500"
+                />
+              </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold rounded text-xs transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-3 py-1.5 bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-bold rounded text-xs transition-all"
-            >
-              {isPending ? 'Writing...' : 'Write to Log'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isPending ? 'Writing…' : 'Write entry'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -877,65 +922,78 @@ export function AddMemberModal({ isOpen, onClose, onSubmit, isPending = false }:
     }
   }
 
-  if (!isOpen) return null
-
   return (
-    <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4 backdrop-blur-sm animate-fade-in">
-      <div className="w-full max-w-sm bg-white border border-zinc-200 rounded-lg p-6 shadow-xl space-y-4">
-        <div className="flex justify-between items-center border-b border-zinc-100 pb-3">
-          <h3 className="font-bold text-sm text-zinc-900 uppercase font-mono tracking-tight flex items-center gap-2">
-            <Users size={16} /> Bind Operator Authority
-          </h3>
-          <button onClick={onClose} className="text-zinc-400 hover:text-zinc-900 font-bold text-lg">
-            ×
-          </button>
-        </div>
+    <AnimatePresence>
+      {isOpen && (
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 p-4"
+        >
+          <motion.div
+            initial={{ scale: 0.96, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.96, opacity: 0 }}
+            className="w-full max-w-sm space-y-4 rounded-[2rem] border border-slate-200 bg-white p-6 shadow-2xl"
+          >
+            <div className="flex items-start justify-between gap-4 border-b border-slate-100 pb-3">
+              <div>
+                <p className="text-sm font-semibold uppercase tracking-[0.24em] text-indigo-600">New member</p>
+                <h3 className="mt-1 text-xl font-semibold text-slate-900">Add a member</h3>
+              </div>
+              <button onClick={onClose} className="text-lg font-bold text-slate-400 hover:text-slate-900">
+                ×
+              </button>
+            </div>
 
-        <form onSubmit={handleSubmit} className="space-y-4 text-xs">
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Network Email Identity</label>
-            <input
-              type="email"
-              required
-              placeholder="operator.name@domain.tz"
-              value={formData.email}
-              onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-              className="w-full px-3 py-1.5 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-950 font-mono focus:bg-white"
-            />
-          </div>
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Email</label>
+                <input
+                  type="email"
+                  required
+                  placeholder="name@domain.tz"
+                  value={formData.email}
+                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                  className="w-full rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
+                />
+              </div>
 
-          <div className="space-y-1">
-            <label className="block font-mono font-bold text-zinc-600 uppercase tracking-wider">Default Permissions Tier</label>
-            <select
-              value={formData.role}
-              onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
-              className="w-full px-3 py-1.5 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-950 bg-white font-mono font-bold uppercase text-xs"
-            >
-              <option value="contributor">Contributor</option>
-              <option value="viewer_comment">Commenter</option>
-              <option value="viewer">Viewer (Read Only)</option>
-            </select>
-          </div>
+              <div className="space-y-1.5">
+                <label className="text-xs font-medium uppercase tracking-wide text-slate-500">Role</label>
+                <select
+                  value={formData.role}
+                  onChange={(e) => setFormData({ ...formData, role: e.target.value as Role })}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
+                >
+                  <option value="contributor">Contributor</option>
+                  <option value="viewer_comment">Commenter</option>
+                  <option value="viewer">Viewer (read only)</option>
+                </select>
+              </div>
 
-          <div className="flex justify-end gap-2 pt-2 border-t border-zinc-100">
-            <button
-              type="button"
-              onClick={onClose}
-              className="px-3 py-1.5 bg-zinc-100 hover:bg-zinc-200 text-zinc-700 font-bold rounded text-xs transition-all"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={isPending}
-              className="px-3 py-1.5 bg-zinc-950 hover:bg-zinc-800 disabled:bg-zinc-400 text-white font-bold rounded text-xs transition-all"
-            >
-              {isPending ? 'Authorizing...' : 'Authorize Node'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+              <div className="flex justify-end gap-3 border-t border-slate-100 pt-4">
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="rounded-2xl border border-slate-200 px-5 py-3 text-sm font-semibold text-slate-700 transition hover:bg-slate-100"
+                >
+                  Cancel
+                </button>
+                <button
+                  type="submit"
+                  disabled={isPending}
+                  className="rounded-2xl bg-indigo-600 px-5 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  {isPending ? 'Adding…' : 'Add member'}
+                </button>
+              </div>
+            </form>
+          </motion.div>
+        </motion.div>
+      )}
+    </AnimatePresence>
   )
 }
 
@@ -950,7 +1008,7 @@ interface ProjectModuleProps {
   onSignOut?: () => void
 }
 
-export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
+export default function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
   const [view, setView] = useState<ViewType>('dashboard')
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState('')
@@ -1185,7 +1243,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
         ),
       )
       setSelectedEntryId(activeProject.entries.find((entry) => entry.id !== entryId)?.id || '')
-      showToast('Sync log dropped securely.')
+      showToast('Entry removed.')
     } catch (error) {
       showToast(getApiErrorMessage(error), 'error')
     }
@@ -1223,7 +1281,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
       )
 
       setNewCommentContent('')
-      showToast('Feedback thread committed.')
+      showToast('Comment posted.')
     } catch (error) {
       showToast(getApiErrorMessage(error), 'error')
     }
@@ -1239,7 +1297,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
 
     const memberExists = activeProject.members.some((m) => m.email === data.email)
     if (memberExists) {
-      showToast('Operator record already linked to this node.', 'error')
+      showToast('That person is already a member of this project.', 'error')
       return
     }
 
@@ -1260,7 +1318,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
       )
 
       setIsAddMemberModalOpen(false)
-      showToast(`Authorized: ${newMember.name} linked as ${data.role}.`)
+      showToast(`Added ${newMember.name} as ${data.role}.`)
     } catch (error) {
       showToast(getApiErrorMessage(error), 'error')
     } finally {
@@ -1290,7 +1348,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
             : p,
         ),
       )
-      showToast('Operator permissions map modified.')
+      showToast('Member role updated.')
     } catch (error) {
       showToast(getApiErrorMessage(error), 'error')
     }
@@ -1319,43 +1377,43 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
             : p,
         ),
       )
-      showToast('Linked domain operator revoked successfully.')
+      showToast('Member removed.')
     } catch (error) {
       showToast(getApiErrorMessage(error), 'error')
     }
   }
 
   return (
-    <div className="min-h-screen bg-zinc-50 flex flex-col">
+    <div className="min-h-screen bg-slate-50 text-slate-900">
       {/* Header */}
-      <header className="bg-white border-b border-zinc-200 px-6 py-4 sticky top-0 z-30">
-        <div className="flex items-center justify-between gap-4">
+      <header className="sticky top-0 z-30 border-b border-slate-200 bg-white px-4 py-4 sm:px-6 lg:px-8">
+        <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 bg-zinc-900 rounded flex items-center justify-center text-white font-bold text-sm">
+            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-600 text-sm font-semibold text-white">
               LH
             </div>
             <div>
-              <h1 className="font-bold text-sm text-zinc-900">Project Module</h1>
-              <p className="text-xs text-zinc-500">Manage projects, entries, and team collaboration</p>
+              <p className="text-sm font-medium uppercase tracking-[0.24em] text-indigo-600">Project</p>
+              <h1 className="text-lg font-semibold tracking-tight text-slate-900">Team projects</h1>
             </div>
           </div>
 
           <div className="flex items-center gap-3">
             <div className="relative hidden md:block">
-              <Search className="absolute left-2.5 top-1/2 transform -translate-y-1/2 text-zinc-400" size={16} />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
               <input
                 type="text"
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 pr-3 py-1.5 text-xs bg-zinc-100 rounded border border-zinc-200 focus:outline-none focus:ring-1 focus:ring-zinc-900 focus:bg-white"
+                className="rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-300"
               />
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
               <button
                 onClick={() => setView(view === 'dashboard' ? 'projects' : 'dashboard')}
-                className="p-2 hover:bg-zinc-100 rounded transition-all"
+                className="rounded-full p-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                 title={view === 'dashboard' ? 'All Projects' : 'Dashboard'}
               >
                 <Layout size={18} />
@@ -1363,7 +1421,7 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
               {onSignOut && (
                 <button
                   onClick={onSignOut}
-                  className="p-2 hover:bg-zinc-100 rounded transition-all"
+                  className="rounded-full p-2 text-slate-600 transition hover:bg-slate-100 hover:text-slate-900"
                   title="Sign Out"
                 >
                   <Settings size={18} />
@@ -1374,59 +1432,56 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
         </div>
 
         {/* Navigation Tabs */}
-        <div className="flex gap-2 mt-4 border-b border-zinc-100 -mx-6 px-6">
+        <div className="mx-auto mt-4 flex max-w-[1440px] gap-2 border-b border-slate-100">
           {(['dashboard', 'projects', 'detail'] as ViewType[]).map((v) => (
             <button
               key={v}
               onClick={() => setView(v)}
-              className={`px-3 py-2 text-xs font-bold uppercase tracking-wider transition-all border-b-2 ${
-                view === v
-                  ? 'text-zinc-900 border-zinc-900'
-                  : 'text-zinc-500 border-transparent hover:text-zinc-700'
+              className={`border-b-2 px-3 py-2 text-sm font-semibold capitalize transition ${
+                view === v ? 'border-indigo-600 text-indigo-600' : 'border-transparent text-slate-500 hover:text-slate-700'
               }`}
             >
-              {v === 'dashboard' && '📊 Dashboard'}
-              {v === 'projects' && '📂 All Projects'}
-              {v === 'detail' && '🔍 Project Details'}
+              {v === 'dashboard' && 'Dashboard'}
+              {v === 'projects' && 'All projects'}
+              {v === 'detail' && 'Project details'}
             </button>
           ))}
         </div>
       </header>
 
       {/* Main Content */}
-      <div className="flex-1 overflow-y-auto">
-        <div className="max-w-7xl mx-auto p-6">
+      <div className="px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto max-w-[1440px]">
           {/* Dashboard View */}
           {view === 'dashboard' && (
             <div className="space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="bg-white border border-zinc-200 rounded-lg p-4">
-                  <p className="text-xs font-mono text-zinc-400 font-bold uppercase">Total Projects</p>
-                  <p className="text-2xl font-bold mt-2">{projects.length}</p>
-                </div>
-                <div className="bg-white border border-zinc-200 rounded-lg p-4">
-                  <p className="text-xs font-mono text-zinc-400 font-bold uppercase">Total Entries</p>
-                  <p className="text-2xl font-bold mt-2">{projects.reduce((acc, p) => acc + p.entries.length, 0)}</p>
-                </div>
-                <div className="bg-white border border-zinc-200 rounded-lg p-4">
-                  <p className="text-xs font-mono text-zinc-400 font-bold uppercase">Total Members</p>
-                  <p className="text-2xl font-bold mt-2">{projects.reduce((acc, p) => acc + p.memberCount, 0)}</p>
-                </div>
-                <div className="bg-white border border-zinc-200 rounded-lg p-4">
-                  <p className="text-xs font-mono text-zinc-400 font-bold uppercase">Your Role</p>
-                  <p className="text-lg font-bold mt-2 capitalize">{activeRole.replace('_', ' ')}</p>
+              <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+                <DashboardStat label="Total projects" value={projects.length} />
+                <DashboardStat
+                  label="Total entries"
+                  value={projects.reduce((acc, p) => acc + p.entries.length, 0)}
+                />
+                <DashboardStat
+                  label="Total members"
+                  value={projects.reduce((acc, p) => acc + p.memberCount, 0)}
+                />
+                <div className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+                  <p className="text-sm uppercase tracking-[0.24em] text-slate-400">Your role</p>
+                  <p className="mt-3 text-2xl font-semibold capitalize text-slate-900">
+                    {activeRole.replace('_', ' ')}
+                  </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid gap-6 lg:grid-cols-3">
                 <div className="lg:col-span-2">
-                  <div className="flex justify-between items-center mb-4">
-                    <h2 className="text-lg font-bold">Recent Active Nodes</h2>
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-slate-900">Recent projects</h2>
                     <button
                       onClick={() => setIsCreateProjectModalOpen(true)}
-                      className="flex items-center gap-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-bold px-3 py-1.5 rounded transition-all"
+                      className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
                     >
-                      <Plus size={14} /> Create Project
+                      <Plus size={14} /> Create project
                     </button>
                   </div>
                   <ProjectList
@@ -1443,19 +1498,21 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
                 </div>
 
                 <div>
-                  <h3 className="text-sm font-bold mb-3">Compliance Status</h3>
-                  <div className="bg-zinc-50 border border-zinc-200 rounded-lg p-4 space-y-3 text-xs">
+                  <h3 className="mb-3 text-sm font-semibold text-slate-900">Workspace info</h3>
+                  <div className="space-y-3 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
                     <div className="flex items-start gap-2">
-                      <span className="text-lg">🔒</span>
+                      <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+                        <Activity size={16} />
+                      </div>
                       <div>
-                        <p className="font-bold text-zinc-900">Data Security</p>
-                        <p className="text-zinc-500 text-[10px] mt-1">All entries are locally managed with secure access controls.</p>
+                        <p className="text-sm font-semibold text-slate-900">Access control</p>
+                        <p className="mt-1 text-xs text-slate-500">Entries are managed with role-based access controls.</p>
                       </div>
                     </div>
-                    <div className="border-t border-zinc-100 pt-3">
-                      <p className="font-mono text-[10px] text-zinc-500 uppercase font-bold">System Info</p>
-                      <p className="text-[10.5px] text-zinc-600 mt-2 leading-relaxed">• User: {currentUser.fullName}</p>
-                      <p className="text-[10.5px] text-zinc-600">• Email: {currentUser.email}</p>
+                    <div className="border-t border-slate-100 pt-3 text-xs">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-slate-400">Signed in as</p>
+                      <p className="mt-2 leading-relaxed text-slate-600">{currentUser.fullName}</p>
+                      <p className="text-slate-600">{currentUser.email}</p>
                     </div>
                   </div>
                 </div>
@@ -1466,16 +1523,16 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
           {/* Projects List View */}
           {view === 'projects' && (
             <div className="space-y-6">
-              <div className="flex justify-between items-center">
+              <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold">Active Sync Nodes Directory</h2>
-                  <p className="text-xs text-zinc-500 mt-1">Unified ledger monitoring of local enterprise pipelines.</p>
+                  <h2 className="text-xl font-semibold text-slate-900">All projects</h2>
+                  <p className="mt-1 text-sm text-slate-500">Every project you have access to, in one place.</p>
                 </div>
                 <button
                   onClick={() => setIsCreateProjectModalOpen(true)}
-                  className="flex items-center gap-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-bold px-3 py-1.5 rounded transition-all"
+                  className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
                 >
-                  <Plus size={14} /> Create Node Map
+                  <Plus size={14} /> Create project
                 </button>
               </div>
 
@@ -1498,26 +1555,24 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
             <div className="space-y-6">
               <div className="flex items-center justify-between">
                 <div>
-                  <h2 className="text-xl font-bold flex items-center gap-2">
-                    📂 {activeProject.name}
-                  </h2>
-                  <p className="text-xs text-zinc-500 mt-1 max-w-2xl">{activeProject.description}</p>
+                  <h2 className="text-xl font-semibold text-slate-900">{activeProject.name}</h2>
+                  <p className="mt-1 max-w-2xl text-sm text-slate-500">{activeProject.description}</p>
                 </div>
 
                 {permissions.canCreateEntry() && (
                   <button
                     onClick={() => setIsCreateEntryModalOpen(true)}
-                    className="flex items-center gap-1 bg-zinc-900 text-white hover:bg-zinc-800 text-xs font-bold px-3 py-1.5 rounded transition-all"
+                    className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500"
                   >
-                    <Plus size={14} /> Write Log Entry
+                    <Plus size={14} /> Write entry
                   </button>
                 )}
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="grid gap-6 lg:grid-cols-3">
                 {/* Main Content: Entries */}
-                <div className="lg:col-span-2 space-y-4">
-                  <h3 className="font-bold text-sm uppercase tracking-wider">Sync Logs & Milestones</h3>
+                <div className="space-y-4 lg:col-span-2">
+                  <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400">Entries</h3>
                   <EntriesPanel
                     entries={activeProject.entries}
                     selectedEntryId={selectedEntryId}
@@ -1589,5 +1644,14 @@ export function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
       {/* Toast Notifications */}
       <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
+  )
+}
+
+function DashboardStat({ label, value }: { label: string; value: number }) {
+  return (
+    <motion.div whileHover={{ y: -2 }} className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <p className="text-sm uppercase tracking-[0.24em] text-slate-400">{label}</p>
+      <p className="mt-3 text-3xl font-semibold text-slate-900">{value}</p>
+    </motion.div>
   )
 }

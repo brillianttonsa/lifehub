@@ -1,4 +1,4 @@
-import { apiClient } from '../../../lib/apiClient'
+import { apiClient } from '../lib/apiClient'
 import {
   ActivityStatus,
   CreateActivityInput,
@@ -8,7 +8,7 @@ import {
   PocketOverview,
   PocketTransaction,
   Wallet,
-} from '../../../types/pocket'
+} from '../types/pocket'
 
 interface ApiEnvelope<T> {
   success: boolean

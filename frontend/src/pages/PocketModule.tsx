@@ -13,8 +13,9 @@ import {
   WalletCards,
 } from 'lucide-react'
 import type { LucideIcon } from 'lucide-react'
-import { getApiErrorMessage } from '../../../lib/apiClient'
-import { ToastContainer } from '../../projects/components'
+import { motion, AnimatePresence } from 'framer-motion'
+import { getApiErrorMessage } from '../lib/apiClient'
+import { ToastContainer } from '.'
 import {
   createActivity,
   createTransaction,
@@ -36,8 +37,8 @@ import {
   TransactionType,
   Wallet,
   WalletType,
-} from '../../../types/pocket'
-import { Toast, User } from '../../../types/project'
+} from '../types/pocket'
+import { Toast, User } from '../types/project'
 
 interface PocketModuleProps {
   currentUser: User
@@ -92,7 +93,7 @@ function getTransactionIcon(type: TransactionType) {
   return ArrowRightLeft
 }
 
-export function PocketModule({ currentUser }: PocketModuleProps) {
+export default function PocketModule({ currentUser }: PocketModuleProps) {
   const [overview, setOverview] = useState<PocketOverview>(emptyOverview)
   const [wallets, setWallets] = useState<Wallet[]>([])
   const [activities, setActivities] = useState<PocketActivity[]>([])
@@ -275,46 +276,46 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="max-w-7xl mx-auto p-6 space-y-6">
-        <section className="flex flex-col lg:flex-row lg:items-end justify-between gap-4">
+    <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-6 sm:px-6 lg:px-8">
+      <div className="max-w-[1440px] mx-auto space-y-4">
+        <section className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-xs font-mono text-zinc-500 uppercase font-bold">Pocket</p>
-            <h2 className="text-2xl font-bold text-zinc-950 mt-1">Personal finance workspace</h2>
-            <p className="text-xs text-zinc-500 mt-1">
+            <p className="text-sm font-medium text-indigo-600 uppercase tracking-[0.24em]">Pocket</p>
+            <h1 className="mt-2 text-3xl font-semibold tracking-tight">Personal finance workspace</h1>
+            <p className="mt-2 text-sm text-slate-600 max-w-2xl">
               {currentUser.fullName} can track wallets, activities, and cash movement here.
             </p>
           </div>
 
           <button
             onClick={loadPocket}
-            className="self-start lg:self-auto flex items-center gap-2 border border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800 text-xs font-bold px-3 py-2 rounded transition-all"
+            className="inline-flex items-center gap-2 self-start rounded-full border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-100 md:self-auto"
           >
-            <RefreshCw size={15} /> Refresh
+            <RefreshCw size={16} /> Refresh
           </button>
         </section>
 
-        <section className="grid grid-cols-1 md:grid-cols-4 gap-4">
-          <StatCard label="Total Balance" value={formatMoney(overview.totalBalance)} tone="dark" />
+        <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          <StatCard label="Total balance" value={formatMoney(overview.totalBalance)} tone="dark" />
           <StatCard label="Income" value={formatMoney(overview.income)} tone="green" />
           <StatCard label="Expense" value={formatMoney(overview.expense)} tone="red" />
-          <StatCard label="Wallets" value={overview.walletCount.toString()} tone="zinc" />
+          <StatCard label="Wallets" value={overview.walletCount.toString()} tone="light" />
         </section>
 
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2 space-y-6">
-            <Panel title="Wallets" icon={WalletCards}>
-              <form onSubmit={handleCreateWallet} className="grid grid-cols-1 md:grid-cols-5 gap-2 mb-4">
+        <div className="grid gap-4 xl:grid-cols-[1.7fr_1fr]">
+          <div className="space-y-4">
+            <Panel title="Wallets" icon={WalletCards} subtitle="Where your money lives">
+              <form onSubmit={handleCreateWallet} className="grid grid-cols-1 gap-2 md:grid-cols-5">
                 <input
                   value={walletForm.name}
                   onChange={(e) => setWalletForm((prev) => ({ ...prev, name: e.target.value }))}
                   placeholder="Wallet name"
-                  className="md:col-span-2 px-3 py-2 text-xs border border-zinc-200 rounded focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300 md:col-span-2"
                 />
                 <select
                   value={walletForm.type}
                   onChange={(e) => setWalletForm((prev) => ({ ...prev, type: e.target.value as WalletType }))}
-                  className="px-3 py-2 text-xs border border-zinc-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 >
                   {Object.entries(walletTypeLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -327,60 +328,64 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                   onChange={(e) => setWalletForm((prev) => ({ ...prev, balance: e.target.value }))}
                   placeholder="Opening balance"
                   inputMode="decimal"
-                  className="px-3 py-2 text-xs border border-zinc-200 rounded focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
                 />
                 <button
                   disabled={isSaving}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800 disabled:bg-zinc-300 text-xs font-bold rounded px-3 py-2 flex items-center justify-center gap-1"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <Plus size={14} /> Add
+                  <Plus size={16} /> Add
                 </button>
               </form>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              <div className="mt-4 grid gap-3 sm:grid-cols-2">
                 {isLoading && <SkeletonRows />}
-                {!isLoading && activeWallets.length === 0 && <EmptyState label="No wallets yet." />}
+                {!isLoading && activeWallets.length === 0 && <EmptyState label="No wallets yet. Add one to get started." />}
                 {!isLoading &&
                   activeWallets.map((wallet) => {
                     const Icon = getWalletIcon(wallet.type)
                     return (
-                      <article key={wallet.id} className="border border-zinc-200 rounded-lg bg-white p-4">
+                      <motion.article
+                        key={wallet.id}
+                        whileHover={{ y: -2 }}
+                        className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
+                      >
                         <div className="flex items-start justify-between gap-3">
                           <div className="flex items-start gap-3">
-                            <div className="w-9 h-9 rounded bg-zinc-900 text-white flex items-center justify-center">
-                              <Icon size={17} />
+                            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 shadow-inner shadow-indigo-100/80">
+                              <Icon size={18} />
                             </div>
                             <div>
-                              <h3 className="text-sm font-bold text-zinc-950">{wallet.name}</h3>
-                              <p className="text-[11px] text-zinc-500 mt-0.5">
+                              <h3 className="text-sm font-semibold text-slate-900">{wallet.name}</h3>
+                              <p className="mt-0.5 text-xs text-slate-500">
                                 {walletTypeLabels[wallet.type]}
-                                {wallet.provider ? ` / ${wallet.provider}` : ''}
+                                {wallet.provider ? ` · ${wallet.provider}` : ''}
                               </p>
                             </div>
                           </div>
                           <button
                             onClick={() => handleDeleteWallet(wallet.id)}
-                            className="p-1.5 text-zinc-400 hover:text-red-600 hover:bg-red-50 rounded"
+                            className="rounded-full p-1.5 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
                             title="Delete wallet"
                           >
                             <Trash2 size={14} />
                           </button>
                         </div>
-                        <p className="mt-4 text-xl font-bold text-zinc-950">{formatMoney(wallet.balance)}</p>
-                      </article>
+                        <p className="mt-4 text-2xl font-semibold text-slate-900">{formatMoney(wallet.balance)}</p>
+                      </motion.article>
                     )
                   })}
               </div>
             </Panel>
 
-            <Panel title="Transactions" icon={ArrowRightLeft}>
-              <form onSubmit={handleCreateTransaction} className="grid grid-cols-1 md:grid-cols-6 gap-2 mb-4">
+            <Panel title="Transactions" icon={ArrowRightLeft} subtitle="Income, expenses, and transfers">
+              <form onSubmit={handleCreateTransaction} className="grid grid-cols-1 gap-2 md:grid-cols-6">
                 <select
                   value={transactionForm.type}
                   onChange={(e) =>
                     setTransactionForm((prev) => ({ ...prev, type: e.target.value as TransactionType }))
                   }
-                  className="px-3 py-2 text-xs border border-zinc-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 >
                   {Object.entries(transactionLabels).map(([value, label]) => (
                     <option key={value} value={value}>
@@ -393,7 +398,7 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                   onChange={(e) => setTransactionForm((prev) => ({ ...prev, amount: e.target.value }))}
                   placeholder="Amount"
                   inputMode="decimal"
-                  className="px-3 py-2 text-xs border border-zinc-200 rounded focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
                 />
                 {transactionForm.type !== 'INCOME' && (
                   <WalletSelect
@@ -414,7 +419,7 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                 <select
                   value={transactionForm.activityId}
                   onChange={(e) => setTransactionForm((prev) => ({ ...prev, activityId: e.target.value }))}
-                  className="px-3 py-2 text-xs border border-zinc-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
                 >
                   <option value="">Activity</option>
                   {activities.map((activity) => (
@@ -425,95 +430,99 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                 </select>
                 <button
                   disabled={isSaving}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800 disabled:bg-zinc-300 text-xs font-bold rounded px-3 py-2 flex items-center justify-center gap-1"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  <Plus size={14} /> Record
+                  <Plus size={16} /> Record
                 </button>
                 <input
                   value={transactionForm.description}
                   onChange={(e) => setTransactionForm((prev) => ({ ...prev, description: e.target.value }))}
                   placeholder="Description"
-                  className="md:col-span-6 px-3 py-2 text-xs border border-zinc-200 rounded focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300 md:col-span-6"
                 />
               </form>
 
-              <div className="space-y-3">
+              <div className="mt-4 space-y-3">
                 {isLoading && <SkeletonRows />}
-                {!isLoading && transactions.length === 0 && <EmptyState label="No transactions recorded." />}
+                {!isLoading && transactions.length === 0 && <EmptyState label="No transactions recorded yet." />}
                 {!isLoading &&
                   transactions.map((transaction) => {
                     const Icon = getTransactionIcon(transaction.type)
                     const isExpense = transaction.type === 'EXPENSE'
                     return (
-                      <article
+                      <motion.article
                         key={transaction.id}
-                        className="border border-zinc-200 rounded-lg bg-white p-4 flex items-start justify-between gap-4"
+                        whileHover={{ y: -2 }}
+                        className="flex items-start justify-between gap-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm"
                       >
-                        <div className="flex items-start gap-3 min-w-0">
+                        <div className="flex min-w-0 items-start gap-3">
                           <div
-                            className={`w-9 h-9 rounded flex items-center justify-center ${
-                              isExpense ? 'bg-red-50 text-red-600' : 'bg-emerald-50 text-emerald-700'
+                            className={`flex h-11 w-11 items-center justify-center rounded-2xl ${
+                              isExpense ? 'bg-rose-50 text-rose-700' : 'bg-emerald-50 text-emerald-700'
                             }`}
                           >
-                            <Icon size={17} />
+                            <Icon size={18} />
                           </div>
                           <div className="min-w-0">
-                            <h3 className="text-sm font-bold text-zinc-950 truncate">
+                            <h3 className="truncate text-sm font-semibold text-slate-900">
                               {transaction.description || transactionLabels[transaction.type]}
                             </h3>
-                            <p className="text-[11px] text-zinc-500 mt-0.5">
+                            <p className="mt-0.5 text-xs text-slate-500">
                               {formatDate(transaction.occurredAt)}
                               {transaction.activityId
-                                ? ` / ${activityNameById.get(transaction.activityId) || 'Activity'}`
+                                ? ` · ${activityNameById.get(transaction.activityId) || 'Activity'}`
                                 : ''}
                             </p>
-                            <p className="text-[11px] text-zinc-400 mt-1 truncate">
+                            <p className="mt-1 truncate text-xs text-slate-400">
                               {walletNameById.get(transaction.sourceWalletId || '') || 'External'}
-                              {' -> '}
+                              {' → '}
                               {walletNameById.get(transaction.destinationWalletId || '') || 'External'}
                             </p>
                           </div>
                         </div>
 
-                        <div className="text-right shrink-0">
-                          <p className={`text-sm font-bold ${isExpense ? 'text-red-600' : 'text-emerald-700'}`}>
+                        <div className="shrink-0 text-right">
+                          <p className={`text-sm font-semibold ${isExpense ? 'text-rose-700' : 'text-emerald-700'}`}>
                             {isExpense ? '-' : '+'}
                             {formatMoney(transaction.amount)}
                           </p>
                           <button
                             onClick={() => handleDeleteTransaction(transaction.id)}
-                            className="mt-2 text-[11px] text-zinc-400 hover:text-red-600 font-bold"
+                            className="mt-2 text-xs font-semibold text-slate-400 transition hover:text-rose-600"
                           >
                             Delete
                           </button>
                         </div>
-                      </article>
+                      </motion.article>
                     )
                   })}
               </div>
             </Panel>
           </div>
 
-          <div className="space-y-6">
-            <Panel title="By Wallet Type" icon={WalletCards}>
+          <aside className="space-y-4">
+            <Panel title="By wallet type" icon={WalletCards}>
               <div className="space-y-3">
                 {(Object.keys(walletTypeLabels) as WalletType[]).map((type) => (
-                  <div key={type} className="flex items-center justify-between text-xs">
-                    <span className="font-bold text-zinc-600">{walletTypeLabels[type]}</span>
-                    <span className="font-mono text-zinc-950">{formatMoney(overview.byType[type] ?? 0)}</span>
+                  <div
+                    key={type}
+                    className="flex items-center justify-between rounded-2xl bg-slate-50 px-4 py-3 text-sm"
+                  >
+                    <span className="font-medium text-slate-600">{walletTypeLabels[type]}</span>
+                    <span className="font-semibold text-slate-900">{formatMoney(overview.byType[type] ?? 0)}</span>
                   </div>
                 ))}
               </div>
             </Panel>
 
-            <Panel title="Activities" icon={Tag}>
-              <div className="flex gap-1 mb-4 bg-zinc-100 p-1 rounded">
+            <Panel title="Activities" icon={Tag} subtitle="Tag transactions by purpose">
+              <div className="mb-4 flex gap-1 rounded-full border border-slate-200 bg-white p-1 shadow-sm">
                 {(['active', 'deleted'] as ActivityStatus[]).map((status) => (
                   <button
                     key={status}
                     onClick={() => setActivityStatus(status)}
-                    className={`flex-1 text-[11px] font-bold rounded px-2 py-1.5 capitalize ${
-                      activityStatus === status ? 'bg-white text-zinc-950 shadow-sm' : 'text-zinc-500'
+                    className={`flex-1 rounded-full px-3 py-2 text-xs font-semibold capitalize transition ${
+                      activityStatus === status ? 'bg-indigo-600 text-white' : 'text-slate-600 hover:text-slate-900'
                     }`}
                   >
                     {status}
@@ -521,16 +530,16 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                 ))}
               </div>
 
-              <form onSubmit={handleCreateActivity} className="flex gap-2 mb-4">
+              <form onSubmit={handleCreateActivity} className="mb-4 flex gap-2">
                 <input
                   value={activityName}
                   onChange={(e) => setActivityName(e.target.value)}
                   placeholder="Activity name"
-                  className="flex-1 px-3 py-2 text-xs border border-zinc-200 rounded focus:outline-none focus:ring-1 focus:ring-zinc-900"
+                  className="flex-1 rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none focus:border-indigo-300"
                 />
                 <button
                   disabled={isSaving}
-                  className="bg-zinc-900 text-white hover:bg-zinc-800 disabled:bg-zinc-300 text-xs font-bold rounded px-3 py-2"
+                  className="rounded-2xl bg-indigo-600 px-4 py-3 text-sm font-semibold text-white transition hover:bg-indigo-500 disabled:cursor-not-allowed disabled:opacity-60"
                 >
                   Add
                 </button>
@@ -541,20 +550,20 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                 {activities.map((activity) => (
                   <div
                     key={activity.id}
-                    className="flex items-center justify-between gap-2 border border-zinc-100 rounded p-2 text-xs"
+                    className="flex items-center justify-between gap-2 rounded-2xl bg-slate-50 px-4 py-3 text-sm"
                   >
-                    <span className="font-bold text-zinc-700 capitalize truncate">{activity.name}</span>
+                    <span className="truncate font-medium capitalize text-slate-700">{activity.name}</span>
                     {activity.isDeleted ? (
                       <button
                         onClick={() => handleRestoreActivity(activity.id)}
-                        className="text-[11px] text-emerald-700 font-bold"
+                        className="text-xs font-semibold text-emerald-700 hover:text-emerald-600"
                       >
                         Restore
                       </button>
                     ) : (
                       <button
                         onClick={() => handleDeleteActivity(activity.id)}
-                        className="text-[11px] text-red-500 font-bold"
+                        className="text-xs font-semibold text-rose-600 hover:text-rose-500"
                       >
                         Archive
                       </button>
@@ -563,8 +572,8 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
                 ))}
               </div>
             </Panel>
-          </div>
-        </section>
+          </aside>
+        </div>
       </div>
 
       <ToastContainer toasts={toasts} onClose={removeToast} />
@@ -572,28 +581,43 @@ export function PocketModule({ currentUser }: PocketModuleProps) {
   )
 }
 
-function StatCard({ label, value, tone }: { label: string; value: string; tone: 'dark' | 'green' | 'red' | 'zinc' }) {
+function StatCard({ label, value, tone }: { label: string; value: string; tone: 'dark' | 'green' | 'red' | 'light' }) {
   const toneClass = {
-    dark: 'bg-zinc-950 text-white border-zinc-950',
+    dark: 'bg-slate-950 text-white border-slate-950',
     green: 'bg-emerald-50 text-emerald-800 border-emerald-200',
-    red: 'bg-red-50 text-red-700 border-red-200',
-    zinc: 'bg-white text-zinc-950 border-zinc-200',
+    red: 'bg-rose-50 text-rose-700 border-rose-200',
+    light: 'bg-white text-slate-900 border-slate-200',
   }[tone]
 
   return (
-    <article className={`border rounded-lg p-4 ${toneClass}`}>
-      <p className="text-[10px] font-mono uppercase font-bold opacity-70">{label}</p>
-      <p className="text-xl font-bold mt-2">{value}</p>
-    </article>
+    <motion.article whileHover={{ y: -2 }} className={`rounded-3xl border p-5 shadow-sm ${toneClass}`}>
+      <p className="text-sm uppercase tracking-[0.24em] opacity-60">{label}</p>
+      <p className="mt-3 text-3xl font-semibold">{value}</p>
+    </motion.article>
   )
 }
 
-function Panel({ title, icon: Icon, children }: { title: string; icon: LucideIcon; children: ReactNode }) {
+function Panel({
+  title,
+  subtitle,
+  icon: Icon,
+  children,
+}: {
+  title: string
+  subtitle?: string
+  icon: LucideIcon
+  children: ReactNode
+}) {
   return (
-    <section className="bg-zinc-50 border border-zinc-200 rounded-lg p-4">
-      <div className="flex items-center gap-2 mb-4">
-        <Icon size={18} className="text-zinc-600" />
-        <h3 className="text-sm font-bold text-zinc-950">{title}</h3>
+    <section className="rounded-3xl border border-slate-200 bg-white p-5 shadow-sm">
+      <div className="mb-4 flex items-center gap-3">
+        <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600">
+          <Icon size={18} />
+        </div>
+        <div>
+          <h3 className="text-lg font-semibold text-slate-900">{title}</h3>
+          {subtitle && <p className="text-sm text-slate-500">{subtitle}</p>}
+        </div>
       </div>
       {children}
     </section>
@@ -615,7 +639,7 @@ function WalletSelect({
     <select
       value={value}
       onChange={(e) => onChange(e.target.value)}
-      className="px-3 py-2 text-xs border border-zinc-200 rounded bg-white focus:outline-none focus:ring-1 focus:ring-zinc-900"
+      className="rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none"
     >
       <option value="">{placeholder}</option>
       {wallets.map((wallet) => (
@@ -629,8 +653,8 @@ function WalletSelect({
 
 function EmptyState({ label }: { label: string }) {
   return (
-    <div className="text-center py-8 border border-dashed border-zinc-200 rounded-lg bg-white">
-      <p className="text-xs text-zinc-500 font-medium">{label}</p>
+    <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+      {label}
     </div>
   )
 }
@@ -639,9 +663,9 @@ function SkeletonRows() {
   return (
     <>
       {[1, 2, 3].map((item) => (
-        <div key={item} className="border border-zinc-200 rounded-lg bg-white p-4 animate-pulse space-y-3">
-          <div className="h-4 bg-zinc-200 rounded w-1/2" />
-          <div className="h-3 bg-zinc-100 rounded w-full" />
+        <div key={item} className="animate-pulse space-y-3 rounded-3xl border border-slate-200 bg-white p-5">
+          <div className="h-4 w-1/2 rounded-full bg-slate-200" />
+          <div className="h-3 w-full rounded-full bg-slate-100" />
         </div>
       ))}
     </>

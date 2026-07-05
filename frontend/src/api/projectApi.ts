@@ -1,5 +1,5 @@
-import { apiClient } from '../../../lib/apiClient'
-import { Comment, Entry, Project, ProjectMember, Role } from '../../../types/project'
+import { apiClient } from '../lib/apiClient'
+import { Comment, Entry, Project, ProjectMember, Role } from '../types/project'
 
 interface ProjectDto {
   id: string

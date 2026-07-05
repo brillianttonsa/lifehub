@@ -2,7 +2,7 @@ import { useMemo, useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
 import { useAuth } from '../context/authcontext/useAuth'
 import { getApiErrorMessage } from '../lib/apiClient'
-import { getPlanDashboard, listPlans, createPlan, deletePlan, archivePlan, updatePlanProgress } from '../features/plan/api/planApi'
+import { getPlanDashboard, listPlans, createPlan, deletePlan, archivePlan, updatePlanProgress } from '../api/planApi'
 import { Plan, PlanPriority, PlanStatus, PlanTimeframe } from '../types/plan'
 import { InputField } from '../components/ui/InputField'
 import { Plus, List, LayoutGrid, Search, Trash2, Archive, ArrowUpRight, ArrowDownRight } from 'lucide-react'
@@ -45,7 +45,7 @@ function getPriorityStyle(priority: PlanPriority) {
   }[priority]
 }
 
-export default function Plans() {
+export default function PlansModule() {
   const { user, isAuthenticated } = useAuth()
   const [dashboard, setDashboard] = useState({
     totalPlans: 0,
