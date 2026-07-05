@@ -1,13 +1,24 @@
+import { useEffect } from 'react'
+import { useNavigate } from 'react-router-dom'
 import {AuthCard} from "../components/auth/AuthCard";
 import { useTheme } from '../context/useTheme';
 import { Header } from '../components/layout/Header';
 import { LeftPanel } from '../components/auth/LeftPanel'
+import { useAuth } from '../context/authcontext/useAuth'
 
 export default function Home() {
   const { theme } = useTheme()
-    const isDark = theme === 'dark'
-  
-    return (
+  const { isAuthenticated } = useAuth()
+  const navigate = useNavigate()
+  const isDark = theme === 'dark'
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      navigate('/dashboard', { replace: true })
+    }
+  }, [isAuthenticated, navigate])
+
+  return (
       <div
         className="min-h-screen flex flex-col transition-colors duration-300 relative overflow-x-hidden"
         style={{

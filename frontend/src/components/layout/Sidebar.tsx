@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
+  Home,
   CalendarClock,
   WalletCards,
   FolderKanban,
@@ -11,7 +12,7 @@ import {
   X,
 } from 'lucide-react'
 
-export type SidebarRoute = 'plans' | 'pocket' | 'projects'
+export type SidebarRoute = 'dashboard' | 'plans' | 'pocket' | 'projects' | 'settings'
 
 interface SidebarUser {
   fullName: string
@@ -27,6 +28,7 @@ interface SidebarProps {
 }
 
 const navItems: { key: SidebarRoute; label: string; icon: typeof CalendarClock }[] = [
+  { key: 'dashboard', label: 'Dashboard', icon: Home },
   { key: 'plans', label: 'Plan', icon: CalendarClock },
   { key: 'pocket', label: 'Pocket', icon: WalletCards },
   { key: 'projects', label: 'Project', icon: FolderKanban },

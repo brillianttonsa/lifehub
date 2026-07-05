@@ -1,4 +1,5 @@
 import { useState, useCallback } from "react";
+import { useNavigate } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
 import { ArrowLeft } from "lucide-react";
 import { useTheme } from "../../context/useTheme";
@@ -46,12 +47,14 @@ export function AuthCard() {
     setErrors((e) => ({ ...e, [field]: "" }));
   };
 
+  const routerNavigate = useNavigate();
+
   const showToast = (msg: string, type: "success" | "error") => {
     setToast({ msg, type });
     setTimeout(() => setToast(null), 4000);
   };
 
-  const navigate = useCallback((next: AuthView) => {
+  const navigateView = useCallback((next: AuthView) => {
     setErrors({});
     setToast(null);
     setView(next);
@@ -68,6 +71,7 @@ export function AuthCard() {
     try {
       await signIn(form.email, form.password);
       showToast("Signed in!", "success");
+      routerNavigate('/dashboard', { replace: true });
     } catch (e: unknown) {
       showToast(getApiErrorMessage(e), "error");
     } finally {
@@ -89,6 +93,7 @@ export function AuthCard() {
     try {
       await signUp(form.fullName, form.email, form.password);
       showToast("Account created!", "success");
+      routerNavigate('/dashboard', { replace: true });
     } catch (e: unknown) {
       showToast(getApiErrorMessage(e), "error");
     } finally {
@@ -105,7 +110,7 @@ export function AuthCard() {
       await requestPasswordReset(form.email);
       setPendingEmail(form.email);
       showToast("Password reset token requested. Check the backend email flow.", "success");
-      setTimeout(() => navigate("verify"), 800);
+      setTimeout(() => navigateView("verify"), 800);
     } catch (e: unknown) {
       showToast(getApiErrorMessage(e), "error");
     } finally {
@@ -117,7 +122,7 @@ export function AuthCard() {
     if (form.code.length < 6) { setErrors({ code: "Enter the 6-digit code" }); return; }
 
     setVerifiedCode(form.code);
-    navigate("reset");
+    navigateView("reset");
   };
 
   const handleReset = async () => {
@@ -131,7 +136,7 @@ export function AuthCard() {
     try {
       await resetPassword(verifiedCode, form.newPassword);
       showToast("Password reset! Please sign in.", "success");
-      setTimeout(() => navigate("signin"), 1500);
+      setTimeout(() => navigateView("signin"), 1500);
     } catch (e: unknown) {
       showToast(getApiErrorMessage(e), "error");
     } finally {
@@ -221,7 +226,7 @@ export function AuthCard() {
                       autoComplete="current-password"
                     />
                     <div className="flex justify-end mt-0.5">
-                      <TextLink onClick={() => navigate("forgot")}>Forgot password?</TextLink>
+                      <TextLink onClick={() => navigateView("forgot")}>Forgot password?</TextLink>
                     </div>
                   </div>
                   <div className="mt-2">
@@ -234,7 +239,7 @@ export function AuthCard() {
                     style={{ color: isDark ? "#64748b" : "#94a3b8" }}
                   >
                     No account?{" "}
-                    <TextLink onClick={() => navigate("signup")}>Create one</TextLink>
+                    <TextLink onClick={() => navigateView("signup")}>Create one</TextLink>
                   </p>
                 </div>
               )}
@@ -286,7 +291,7 @@ export function AuthCard() {
                     style={{ color: isDark ? "#64748b" : "#94a3b8" }}
                   >
                     Already have an account?{" "}
-                    <TextLink onClick={() => navigate("signin")}>Sign in</TextLink>
+                    <TextLink onClick={() => navigateView("signin")}>Sign in</TextLink>
                   </p>
                 </div>
               )}
@@ -308,7 +313,7 @@ export function AuthCard() {
                     </AuthButton>
                   </div>
                   <button
-                    onClick={() => navigate("signin")}
+                    onClick={() => navigateView("signin")}
                     className="flex items-center justify-center gap-1.5 text-sm transition-colors mx-auto"
                     style={{ color: isDark ? "#64748b" : "#94a3b8" }}
                   >
@@ -337,7 +342,7 @@ export function AuthCard() {
                     </AuthButton>
                   </div>
                   <button
-                    onClick={() => navigate("forgot")}
+                    onClick={() => navigateView("forgot")}
                     className="flex items-center justify-center gap-1.5 text-sm transition-colors mx-auto"
                     style={{ color: isDark ? "#64748b" : "#94a3b8" }}
                   >

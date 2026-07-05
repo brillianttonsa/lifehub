@@ -1,10 +1,12 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import Home from './pages/Home';
+import Dashboard from './pages/Dashboard';
+import Settings from './pages/Settings';
 import PlansModule from './pages/PlansModule';
-import PocketModule from './pages/PocketModule';     // Create / import these pages
-import ProjectModule from './pages/ProjectModule';   // Create / import these pages
-// import Settings from './pages/Settings'; // Create / import these pages
+import PocketModule from './pages/PocketModule';
+import ProjectModule from './pages/ProjectModule';
 import ProtectedRoute from './components/auth/ProtectedRoute';
+import ProtectedLayout from './components/layout/ProtectedLayout';
 import { useAuth } from './context/authcontext/useAuth';
 
 export default function App() {
@@ -18,14 +20,16 @@ export default function App() {
 
         {/* Protected Routes Group */}
         <Route element={<ProtectedRoute />}>
-          <Route path="/plans" element={<PlansModule />} />
-          <Route path="/pocket" element={user ? <PocketModule currentUser={user}/> : null} />
-          
-          {/* 3. Pass the required props down here safely! */}
-          <Route 
-            path="/project" 
-            element={user ? <ProjectModule currentUser={user} onSignOut={signOut} /> : null} 
-          />
+          <Route element={<ProtectedLayout />}>
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/plans" element={<PlansModule />} />
+            <Route path="/pocket" element={user ? <PocketModule currentUser={user}/> : null} />
+            <Route 
+              path="/project" 
+              element={user ? <ProjectModule currentUser={user} onSignOut={signOut} /> : null} 
+            />
+            <Route path="/settings" element={<Settings />} />
+          </Route>
         </Route>
         
         {/* Optional fallback catch-all */}

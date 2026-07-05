@@ -67,7 +67,7 @@ const emptyOverview: PocketOverview = {
 function formatMoney(value: string | number) {
   return new Intl.NumberFormat('en', {
     style: 'currency',
-    currency: 'USD',
+    currency: 'TSH',
     maximumFractionDigits: 2,
   }).format(Number(value || 0))
 }
