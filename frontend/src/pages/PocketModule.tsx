@@ -9,11 +9,8 @@ import { ActivitiesPanel } from '../components/pocket/ActivitiesPanel'
 import { TypeBreakdownPanel } from '../components/pocket/TypeBreakDownPanel'
 import { formatMoney } from '../utils/pocket'
 
-interface PocketModuleProps {
-  currentUser: User
-}
 
-export default function PocketModule({ currentUser }: PocketModuleProps) {
+export default function PocketModule() {
   const {
     overview,
     wallets,
@@ -41,7 +38,7 @@ export default function PocketModule({ currentUser }: PocketModuleProps) {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 ">
       <div className="max-w-[1440px] mx-auto space-y-4">
-        <PocketHeader currentUser={currentUser} onRefresh={reloadAll} />
+        <PocketHeader onRefresh={reloadAll} />
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 px-4 py-6 sm:px-6 lg:px-8">
           <StatCard label="Total balance" value={formatMoney(overview.totalBalance)} tone="dark" />

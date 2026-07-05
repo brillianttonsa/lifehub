@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
-import { ArrowLeft, Plus, Search, Settings } from 'lucide-react'
+import { ArrowLeft, Plus, Search } from 'lucide-react'
 import { Project, Toast as ToastMessage, User } from '../types/project'
 import { getApiErrorMessage } from '../lib/apiClient'
 import {
@@ -33,10 +33,10 @@ type ViewType = 'list' | 'detail'
 
 interface ProjectModuleProps {
   currentUser: User
-  onSignOut?: () => void
+  
 }
 
-export default function ProjectModule({ currentUser, onSignOut }: ProjectModuleProps) {
+export default function ProjectModule({ currentUser}: ProjectModuleProps) {
   const [view, setView] = useState<ViewType>('list')
   const [projects, setProjects] = useState<Project[]>([])
   const [selectedProjectId, setSelectedProjectId] = useState('')

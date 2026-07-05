@@ -1,7 +1,7 @@
 import { RefreshCw } from 'lucide-react'
 import { User } from '../../types/pocket'
 
-export function PocketHeader({ currentUser, onRefresh }: { currentUser: User; onRefresh: () => void }) {
+export function PocketHeader({ onRefresh }: { onRefresh: () => void }) {
   return (
     <section className="flex flex-col gap-4  text-gray-800 p-4 rounded-2xl bg-white shadow-sm mx-4 my-4 sm:flex-row sm:items-end sm:justify-between">
       <div className="min-w-0">
