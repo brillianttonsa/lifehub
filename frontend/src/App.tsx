@@ -23,10 +23,10 @@ export default function App() {
           <Route element={<ProtectedLayout />}>
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/plans" element={<PlansModule />} />
-            <Route path="/pocket" element={user ? <PocketModule currentUser={user}/> : null} />
+            <Route path="/pocket" element={user ? <PocketModule /> : null} />
             <Route 
               path="/project" 
-              element={user ? <ProjectModule currentUser={user} onSignOut={signOut} /> : null} 
+              element={user ? <ProjectModule currentUser={user} /> : null} 
             />
             <Route path="/settings" element={<Settings />} />
           </Route>

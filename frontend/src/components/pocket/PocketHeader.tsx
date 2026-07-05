@@ -1,5 +1,4 @@
 import { RefreshCw } from 'lucide-react'
-import { User } from '../../types/pocket'
 
 export function PocketHeader({ onRefresh }: { onRefresh: () => void }) {
   return (

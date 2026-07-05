@@ -1,5 +1,4 @@
 import { ToastContainer } from '../components/projects/Toast'
-import { User } from '../types/project'
 import { usePocketData } from '../hooks/UsePocketData'
 import { PocketHeader } from '../components/pocket/PocketHeader'
 import { StatCard } from '../components/pocket/PocketPrimitives'
