@@ -15,7 +15,7 @@ import {
 import type { LucideIcon } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { getApiErrorMessage } from '../lib/apiClient'
-import { ToastContainer } from '.'
+import { ToastContainer } from '../components/projects/Toast'
 import {
   createActivity,
   createTransaction,
