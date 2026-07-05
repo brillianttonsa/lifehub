@@ -10,7 +10,7 @@ import ProtectedLayout from './components/layout/ProtectedLayout';
 import { useAuth } from './context/authcontext/useAuth';
 
 export default function App() {
-  const { user, signOut } = useAuth();
+  const { user } = useAuth();
 
   return (
     <div className="min-h-screen bg-zinc-50 flex flex-col">
