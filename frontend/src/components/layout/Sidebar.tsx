@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react'
 
-export type SidebarRoute = 'dashboard' | 'plans' | 'pocket' | 'projects' | 'settings'
+export type SidebarRoute = 'dashboard' | 'plans' | 'discipline' | 'pocket' | 'projects' | 'settings'
 
 interface SidebarUser {
   fullName: string
@@ -30,6 +30,7 @@ interface SidebarProps {
 const navItems: { key: SidebarRoute; label: string; icon: typeof CalendarClock }[] = [
   { key: 'dashboard', label: 'Dashboard', icon: Home },
   { key: 'plans', label: 'Plan', icon: CalendarClock },
+  { key: 'discipline', label: 'discipline', icon: FolderKanban },
   { key: 'pocket', label: 'Pocket', icon: WalletCards },
   { key: 'projects', label: 'Project', icon: FolderKanban },
 ]

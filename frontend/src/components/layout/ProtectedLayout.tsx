@@ -10,6 +10,7 @@ export default function ProtectedLayout() {
 
   const activeRoute = useMemo<SidebarRoute>(() => {
     if (location.pathname.startsWith('/plans')) return 'plans'
+    if (location.pathname.startsWith('/discipline')) return 'discipline'
     if (location.pathname.startsWith('/pocket')) return 'pocket'
     if (location.pathname.startsWith('/project')) return 'projects'
     return 'dashboard'
@@ -22,6 +23,9 @@ export default function ProtectedLayout() {
         break
       case 'plans':
         navigate('/plans')
+        break
+      case 'discipline':
+        navigate('/discipline')
         break
       case 'pocket':
         navigate('/pocket')
