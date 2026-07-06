@@ -13,6 +13,7 @@ export default function ProtectedLayout() {
     if (location.pathname.startsWith('/discipline')) return 'discipline'
     if (location.pathname.startsWith('/pocket')) return 'pocket'
     if (location.pathname.startsWith('/project')) return 'projects'
+    if (location.pathname.startsWith('/settings')) return 'settings'
     return 'dashboard'
   }, [location.pathname])
 
@@ -32,6 +33,9 @@ export default function ProtectedLayout() {
         break
       case 'projects':
         navigate('/project')
+        break
+      case 'settings':
+        navigate('/settings')
         break
       default:
         navigate('/dashboard')
