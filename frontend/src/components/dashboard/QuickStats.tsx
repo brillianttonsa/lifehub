@@ -1,9 +1,9 @@
-import { CheckSquare, Flame, Wallet, Briefcase, Loader2 } from 'lucide-react'
+import { Flame, Wallet, Briefcase, Loader2 } from 'lucide-react'
+import { formatMoney } from '../../utils/pocket'
 
 interface QuickStatsProps {
   isLoading: boolean
   stats: {
-    tasksToday: number
     disciplineStreak: number
     monthlySpend: number
     activeProjects: number
@@ -13,13 +13,6 @@ interface QuickStatsProps {
 export default function QuickStats({ isLoading, stats }: QuickStatsProps) {
   const statItems = [
     {
-      label: 'Tasks Due Today',
-      value: stats.tasksToday,
-      icon: CheckSquare,
-      color: 'text-blue-600 dark:text-blue-400',
-      bgColor: 'bg-blue-50 dark:bg-blue-900/20',
-    },
-    {
       label: 'Discipline Streak',
       value: `${stats.disciplineStreak} days`,
       icon: Flame,
@@ -28,7 +21,7 @@ export default function QuickStats({ isLoading, stats }: QuickStatsProps) {
     },
     {
       label: 'Recorded Expenses',
-      value: `$${stats.monthlySpend.toFixed(2)}`,
+      value: formatMoney(stats.monthlySpend),
       icon: Wallet,
       color: 'text-emerald-600 dark:text-emerald-400',
       bgColor: 'bg-emerald-50 dark:bg-emerald-900/20',
@@ -43,7 +36,7 @@ export default function QuickStats({ isLoading, stats }: QuickStatsProps) {
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
       {statItems.map((item) => {
         const Icon = item.icon
         return (

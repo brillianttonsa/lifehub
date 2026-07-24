@@ -8,25 +8,25 @@ export default function QuickActionBar() {
       label: '+ Add Plan / Task',
       icon: '📋',
       color: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
-      onClick: () => navigate('/dashboard/plans'),
+      onClick: () => navigate('/plans'),
     },
     {
       label: '+ Log Habit',
       icon: '🔥',
       color: 'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
-      onClick: () => navigate('/dashboard/discipline'),
+      onClick: () => navigate('/discipline'),
     },
     {
       label: '+ Add Expense',
       icon: '💰',
       color: 'from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700',
-      onClick: () => navigate('/dashboard/pocket'),
+      onClick: () => navigate('/pocket'),
     },
     {
       label: '+ New Project Entry',
       icon: '📝',
       color: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
-      onClick: () => navigate('/dashboard/projects'),
+      onClick: () => navigate('/project'),
     },
   ]
 

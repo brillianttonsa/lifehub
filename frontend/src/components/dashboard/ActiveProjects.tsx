@@ -56,8 +56,14 @@ export default function ActiveProjects({ isLoading, projects }: ActiveProjectsPr
             </button>
           </div>
         ) : (
-          projects.slice(0, 5).map((project) => (
-            <div key={project.id} className="p-4">
+          projects.slice(0, 3).map((project) => (
+            <button
+              key={project.id}
+              type="button"
+              onClick={() => navigate('/project')}
+              className="w-full p-4 text-left transition hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              title={`Open ${project.name}`}
+            >
               <div className="flex items-start justify-between gap-4">
                 <div className="flex-1">
                   <p className="font-semibold text-slate-900 dark:text-slate-100">{project.name}</p>
@@ -69,7 +75,7 @@ export default function ActiveProjects({ isLoading, projects }: ActiveProjectsPr
                 <p className="text-slate-600 dark:text-slate-400">{project.lastActivity}</p>
                 <p className="text-slate-600 dark:text-slate-400">{project.memberCount} Members</p>
               </div>
-            </div>
+            </button>
           ))
         )}
       </div>

@@ -1,18 +1,15 @@
 import { useEffect, useState } from 'react'
 import { useAuth } from '../../context/authcontext/useAuth'
 import { DashboardModulePage } from '../../components/dashboard/settings/DashboardModulePage'
-import { listPlanningCycles } from '../../api/planApi'
 import { listCycles as listDisciplineCycles, getGrid } from '../../api/disciplineApi'
-import { getPocketOverview, listWallets } from '../../api/pocketApi'
+import { getPocketOverview } from '../../api/pocketApi'
 import { listProjects } from '../../api/projectApi'
-import { Goal } from '../../types/plan'
-import { DisciplineGrid } from '../../types/discipline'
-import { PocketOverview, Wallet } from '../../types/pocket'
+import { DisciplineCycle, DisciplineGrid } from '../../types/discipline'
+import { PocketOverview } from '../../types/pocket'
 import { Project } from '../../types/project'
 import GreetingBanner from '../../components/dashboard/GreetingBanner'
 import QuickStats from '../../components/dashboard/QuickStats'
 import QuickActionBar from '../../components/dashboard/QuickActionBar'
-import TodaysPriorities from '../../components/dashboard/TodaysPriorities'
 import HabitTracker from '../../components/dashboard/HabitTracker'
 import PocketOverviewCard from '../../components/dashboard/PocketOverviewCard'
 import ActiveProjects from '../../components/dashboard/ActiveProjects'
@@ -21,35 +18,40 @@ export default function Dashboard() {
   const { user } = useAuth()
   const [disciplineData, setDisciplineData] = useState<DisciplineGrid | null>(null)
   const [pocketData, setPocketData] = useState<PocketOverview | null>(null)
-  const [wallets, setWallets] = useState<Wallet[]>([])
-  const [goals, setGoals] = useState<Goal[]>([])
   const [projects, setProjects] = useState<Project[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
     const fetchDashboardData = async () => {
       try {
-        const [cycles, pocketOverview, pocketWallets, projectList] = await Promise.all([
-          listPlanningCycles({ status: 'Active', pageSize: 100 }),
+        const [pocketResult, projectsResult, disciplineCyclesResult] = await Promise.allSettled([
           getPocketOverview(),
-          listWallets(),
           listProjects(),
+          listDisciplineCycles(),
         ])
 
-        setGoals(cycles.cycles.flatMap((cycle) => cycle.goals ?? []))
-        setPocketData(pocketOverview)
-        setWallets(pocketWallets)
-        setProjects(projectList)
+        if (pocketResult.status === 'fulfilled') {
+          setPocketData(pocketResult.value)
+        } else {
+          console.error('Could not load dashboard pocket data:', pocketResult.reason)
+        }
 
-        // Try to get discipline data
-        try {
-          const cycles = await listDisciplineCycles()
-          if (cycles.length > 0) {
-            const grid = await getGrid(cycles[0].id)
-            setDisciplineData(grid)
+        if (projectsResult.status === 'fulfilled') {
+          setProjects(projectsResult.value)
+        } else {
+          console.error('Could not load dashboard projects:', projectsResult.reason)
+        }
+
+        if (disciplineCyclesResult.status === 'fulfilled') {
+          const activeCycle = disciplineCyclesResult.value.find((cycle: DisciplineCycle) => cycle.status === 'active')
+            ?? disciplineCyclesResult.value[0]
+          if (activeCycle) {
+            try {
+              setDisciplineData(await getGrid(activeCycle.id))
+            } catch (error) {
+              console.error('Could not load dashboard discipline data:', error)
+            }
           }
-        } catch (err) {
-          console.log('Discipline data not available yet')
         }
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
@@ -61,7 +63,7 @@ export default function Dashboard() {
     fetchDashboardData()
   }, [])
 
-  const totalBalance = wallets.reduce((sum, wallet) => sum + parseFloat(wallet.balance || '0'), 0)
+  const totalBalance = pocketData?.totalBalance ?? 0
 
   // Calculate discipline streak
   const calculateDisciplineStreak = () => {
@@ -105,7 +107,6 @@ export default function Dashboard() {
         <QuickStats
           isLoading={isLoading}
           stats={{
-            tasksToday: goals.filter((goal) => goal.status !== 'Completed').length,
             disciplineStreak: calculateDisciplineStreak(),
             monthlySpend: parseFloat(pocketData?.expense?.toString() || '0'),
             activeProjects: projects.length,
@@ -119,7 +120,6 @@ export default function Dashboard() {
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           {/* Left Column */}
           <div className="lg:col-span-2 space-y-6">
-            <TodaysPriorities goals={goals} isLoading={isLoading} />
             <HabitTracker disciplineData={disciplineData} isLoading={isLoading} />
           </div>
 

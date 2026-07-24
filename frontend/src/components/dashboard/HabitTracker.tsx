@@ -41,18 +41,19 @@ export default function HabitTracker({ disciplineData, isLoading }: HabitTracker
   }, [disciplineData])
 
   const disciplineScore = disciplineData?.disciplineScore ?? 0
+  const visibleHabits = habits.slice(0, 5)
 
   return (
     <div className="rounded-xl border border-slate-200 bg-white shadow-sm dark:border-slate-800 dark:bg-slate-900">
       <div className="border-b border-slate-200 px-6 py-4 dark:border-slate-800">
         <div className="flex items-center justify-between">
-          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Habit Tracker & Discipline</h3>
+          <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Today's Habits</h3>
           <div className="flex items-center gap-2 rounded-full bg-orange-100 px-4 py-2 dark:bg-orange-900/30">
             <Flame size={18} className="text-orange-600 dark:text-orange-400" />
             <span className="font-bold text-orange-600 dark:text-orange-400">{disciplineScore}%</span>
           </div>
         </div>
-        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Daily routines & habit progress</p>
+        <p className="mt-1 text-sm text-slate-600 dark:text-slate-400">Today’s status for up to five habits</p>
       </div>
 
       <div className="divide-y divide-slate-200 dark:divide-slate-800">
@@ -60,12 +61,12 @@ export default function HabitTracker({ disciplineData, isLoading }: HabitTracker
           <div className="flex items-center justify-center p-12">
             <Loader2 size={32} className="animate-spin text-slate-400" />
           </div>
-        ) : habits.length === 0 ? (
+        ) : visibleHabits.length === 0 ? (
           <div className="p-6 text-center">
             <p className="text-slate-600 dark:text-slate-400">No habits tracked yet. Start by creating your first habit!</p>
           </div>
         ) : (
-          habits.map(habit => (
+          visibleHabits.map(habit => (
             <div key={habit.id} className="flex items-center gap-4 px-6 py-4 hover:bg-slate-50 dark:hover:bg-slate-800/50">
               <div className="flex-shrink-0">
                 <div

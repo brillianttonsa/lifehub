@@ -28,8 +28,8 @@ export default function Grid({ tasks, dates, logs, onToggle }: GridProps) {
   }
 
   return (
-    <div className="w-full overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
-      <div className="flex">
+    <div className="max-w-full overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+      <div className="flex min-w-0">
         {/* Task Column (Fixed Left) */}
         <div className="w-48 shrink-0 border-r border-slate-200 bg-slate-50 dark:border-slate-800 dark:bg-slate-900/50">
           <div className="flex h-11 items-center border-b border-slate-200 px-4 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:border-slate-800 dark:text-slate-400">
@@ -50,7 +50,7 @@ export default function Grid({ tasks, dates, logs, onToggle }: GridProps) {
         </div>
 
         {/* Dates Column Area (Only this area scrolls horizontally) */}
-        <div className="flex-1 overflow-x-auto">
+        <div className="min-w-0 flex-1 overflow-x-auto overscroll-x-contain">
           {/* Header row: date labels */}
           <div className="flex h-11 items-center border-b border-slate-200 bg-slate-50 px-3 dark:border-slate-800 dark:bg-slate-900/50">
             <div className="flex items-center gap-2">

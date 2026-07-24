@@ -167,7 +167,7 @@ export default function DisciplineModule() {
           </aside>
 
           {/* Active cycle: header, tasks, grid */}
-          <div className="space-y-4">
+          <div className="min-w-0 space-y-4">
             {(error || gridError) && (
               <p className="rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-600 dark:border-rose-900/50 dark:bg-rose-950/50 dark:text-rose-400">
                 {error || gridError}

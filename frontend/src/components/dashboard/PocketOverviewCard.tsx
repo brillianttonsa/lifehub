@@ -1,5 +1,6 @@
 import { TrendingDown, TrendingUp, Wallet, Loader2 } from 'lucide-react'
 import { PocketOverview } from '../../types/pocket'
+import { formatMoney } from '../../utils/pocket'
 
 interface PocketOverviewCardProps {
   pocketData: PocketOverview | null
@@ -25,7 +26,7 @@ export default function PocketOverviewCard({ pocketData, totalBalance, isLoading
         <div className="flex items-center justify-between">
           <div>
             <p className="text-sm font-medium text-emerald-100">Total Balance</p>
-          <p className="mt-2 text-3xl font-bold">${totalBalance.toFixed(2)}</p>
+          <p className="mt-2 text-3xl font-bold">{formatMoney(totalBalance)}</p>
           </div>
           <Wallet size={32} className="text-emerald-200" />
         </div>
@@ -39,7 +40,7 @@ export default function PocketOverviewCard({ pocketData, totalBalance, isLoading
             <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Income</p>
           </div>
           <p className="mt-2 text-xl font-bold text-emerald-600 dark:text-emerald-400">
-            ${pocketData?.income || 0}
+            {formatMoney(pocketData?.income ?? 0)}
           </p>
         </div>
 
@@ -49,7 +50,7 @@ export default function PocketOverviewCard({ pocketData, totalBalance, isLoading
             <p className="text-xs font-medium text-slate-600 dark:text-slate-400">Expense</p>
           </div>
           <p className="mt-2 text-xl font-bold text-red-600 dark:text-red-400">
-            ${pocketData?.expense || 0}
+            {formatMoney(pocketData?.expense ?? 0)}
           </p>
         </div>
       </div>
