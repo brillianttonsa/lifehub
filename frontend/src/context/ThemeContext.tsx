@@ -6,6 +6,7 @@ interface ThemeProviderProps {
 }
 
 function getInitialTheme(): Theme {
+  if (typeof window === 'undefined') return 'light' // SSR safety check
   const savedTheme = localStorage.getItem('theme') as Theme | null
   return savedTheme ?? 'light'
 }
@@ -14,7 +15,18 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
   const [theme, setThemeState] = useState<Theme>(getInitialTheme)
 
   useEffect(() => {
-    document.documentElement.setAttribute('data-theme', theme)
+    const root = document.documentElement
+
+    // Toggle Tailwind's 'dark' class
+    if (theme === 'dark') {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+
+    // Keep data-theme as well if you use standard CSS attribute selectors anywhere
+    root.setAttribute('data-theme', theme)
+    
     localStorage.setItem('theme', theme)
   }, [theme])
 
@@ -26,5 +38,9 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     setThemeState(theme)
   }
 
-  return <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>{children}</ThemeContext.Provider>
+  return (
+    <ThemeContext.Provider value={{ theme, toggleTheme, setTheme }}>
+      {children}
+    </ThemeContext.Provider>
+  )
 }
