@@ -1,5 +1,5 @@
 import { useAuth } from '../../context/authcontext/useAuth'
-import { DashboardModulePage } from '../../components/dashboard/DashboardModulePage'
+import { DashboardModulePage } from '../../components/dashboard/settings/DashboardModulePage'
 
 export default function Dashboard() {
   const { user } = useAuth()
