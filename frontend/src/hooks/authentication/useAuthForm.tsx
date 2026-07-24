@@ -116,9 +116,9 @@ export function useAuthForm() {
 
     setLoading(true);
     try {
-      const resetResponse = await requestPasswordReset(formData.email);
-      showToast(resetResponse.message || "Verification code sent to your email!", "success");
-      setResetToken(resetResponse.token ?? "");
+      await requestPasswordReset(formData.email);
+      showToast("If the account exists, password reset instructions have been sent.", "success");
+      setResetToken("");
       setForgotStep("verify");
     } catch (err: unknown) {
       showToast(getApiErrorMessage(err), "error");

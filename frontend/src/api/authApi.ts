@@ -41,3 +41,7 @@ export async function requestPasswordReset(email: string): Promise<void> {
 export async function resetPassword(token: string, newPassword: string): Promise<void> {
   await apiClient.post('/auth/reset-password', { token, newPassword })
 }
+
+export async function changePassword(currentPassword: string, newPassword: string): Promise<void> {
+  await apiClient.post('/auth/change-password', { currentPassword, newPassword })
+}

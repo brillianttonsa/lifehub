@@ -18,7 +18,10 @@ export const ThemeProvider = ({ children }: ThemeProviderProps) => {
     const root = document.documentElement
 
     // Toggle Tailwind's 'dark' class
-    if (theme === 'dark') {
+    const usesDarkTheme = theme === 'dark' || (
+      theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches
+    )
+    if (usesDarkTheme) {
       root.classList.add('dark')
     } else {
       root.classList.remove('dark')
