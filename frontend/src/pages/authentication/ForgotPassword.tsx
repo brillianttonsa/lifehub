@@ -1,4 +1,4 @@
-import { Lock, Eye, EyeOff, ArrowRight, ArrowLeft, KeyRound, Mail } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight, ArrowLeft } from 'lucide-react';
 import { AuthPageLayout } from '../../components/authentication/AuthPageLayout';
 import { AuthFormField } from '../../components/authentication/AuthFormField';
 import { AuthSubmitButton } from '../../components/authentication/AuthSubmitButton';

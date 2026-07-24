@@ -163,6 +163,30 @@ export class AuthService {
       .where(eq(refreshTokens.userId, record.userId));
   }
 
+  async changePassword(userId: string, currentPassword: string, newPassword: string) {
+    const user = await this.getUserById(userId);
+
+    if (!user.passwordHash) {
+      throw new HttpException('This account uses OAuth login and does not have a password.', HttpStatus.BAD_REQUEST);
+    }
+
+    const isCurrentPasswordValid = await comparePassword(currentPassword, user.passwordHash);
+    if (!isCurrentPasswordValid) {
+      throw new HttpException('Current password is incorrect', HttpStatus.UNAUTHORIZED);
+    }
+
+    await db
+      .update(users)
+      .set({ passwordHash: await hashPassword(newPassword) })
+      .where(eq(users.id, userId));
+
+    // Invalidate other sessions; the current access cookie remains valid until it expires.
+    await db
+      .update(refreshTokens)
+      .set({ revoked: true })
+      .where(eq(refreshTokens.userId, userId));
+  }
+
   async getUserById(userId: string) {
     const user = await db.query.users.findFirst({
       where: eq(users.id, userId),

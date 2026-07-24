@@ -1,4 +1,4 @@
-import { Eye, EyeOff, ArrowRight, User, Mail, Lock } from 'lucide-react';
+import { Eye, EyeOff, ArrowRight } from 'lucide-react';
 import { FaGoogle } from 'react-icons/fa';
 import { AuthPageLayout } from '../../components/authentication/AuthPageLayout';
 import { AuthFormField } from '../../components/authentication/AuthFormField';
