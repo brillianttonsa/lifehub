@@ -1,12 +1,14 @@
+import type { ReactNode } from 'react';
 import { Navigate, Outlet } from 'react-router-dom';
-import { useAuth } from '../../context/authcontext/useAuth'; // Adjust path
+import { useAuth } from '../../context/authcontext/useAuth';
 
-export default function ProtectedRoute() {
+interface ProtectedRouteProps {
+  children?: ReactNode;
+}
+
+export default function ProtectedRoute({ children }: ProtectedRouteProps) {
   const { isAuthenticated, isBootstrapping } = useAuth();
 
-  console.log("🔒 Protected Route State:", { isAuthenticated, isBootstrapping });
-
-  // 1. Prevent screen flickering/redirects while verifying the user session on startup
   if (isBootstrapping) {
     return (
       <div className="flex h-screen w-screen items-center justify-center bg-zinc-50">
@@ -15,11 +17,9 @@ export default function ProtectedRoute() {
     );
   }
 
-  // 2. If not authenticated, kick them back to the Home/Login screen
   if (!isAuthenticated) {
-    return <Navigate to="/" replace />;
+    return <Navigate to="/login" replace />;
   }
 
-  // 3. If authenticated, render the child route component
-  return <Outlet />;
+  return children ?? <Outlet />;
 }
