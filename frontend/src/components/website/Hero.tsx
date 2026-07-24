@@ -1,4 +1,4 @@
-import { User, CalendarCheck, Wallet, Zap, FolderDot, ArrowRight} from 'lucide-react';
+import { User, CalendarCheck, Wallet, Zap, FolderDot } from 'lucide-react';
 import Header from './Header';
 
 interface ModuleProps {
