@@ -1,7 +1,7 @@
 export type AuthView = "signin" | "signup" | "forgot" | "verify" | "reset";
 
-export interface FormState {
-  fullName: string;
+export interface AuthFormData {
+  username: string;
   email: string;
   password: string;
   confirmPassword: string;
