@@ -59,11 +59,7 @@ export interface Comment {
   createdAt?: string
 }
 
-export interface Toast {
-  id: number
-  message: string
-  type: 'success' | 'error' | 'info'
-}
+
 
 export const PERMISSION_MAP: Record<Role, string[]> = {
   owner: ['delete_project', 'manage_members', 'create_entry', 'add_comment', 'delete_entry'],
