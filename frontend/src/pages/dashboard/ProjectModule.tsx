@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { ArrowLeft, Plus, Search } from 'lucide-react'
-import { Project, Toast as ToastMessage, User } from '../types/project'
-import { getApiErrorMessage } from '../lib/apiClient'
+import { Project, Toast as ToastMessage, User } from '../../types/project'
+import { getApiErrorMessage } from '../../lib/apiClient'
 import {
   addMember,
   createComment,
@@ -14,18 +14,18 @@ import {
   listProjects,
   removeMember,
   updateMemberRole,
-} from '../api/projectApi'
+} from '../../api/projectApi'
 
-import { usePermissions } from '../hooks/usePermissions'
-import { ToastContainer } from '../components/projects/Toast'
-import { ProjectList } from '../components/projects/ProjectList'
-import { ProjectDetailCard } from '../components/projects/ProjectDetailCard'
-import { EntriesPanel } from '../components/projects/EntriesPanel'
-import { CommentsCard } from '../components/projects/CommentsCard'
-import { MembersPanel } from '../components/projects/MembersPanel'
-import { CreateProjectModal } from '../components/projects/modals/CreateProjectModal'
-import { CreateEntryModal } from '../components/projects/modals/CreateEntryModal'
-import { AddMemberModal } from '../components/projects/modals/AddMemberModal'
+import { usePermissions } from '../../hooks/usePermissions'
+import { ToastContainer } from '../../components/projects/Toast'
+import { ProjectList } from '../../components/projects/ProjectList'
+import { ProjectDetailCard } from '../../components/projects/ProjectDetailCard'
+import { EntriesPanel } from '../../components/projects/EntriesPanel'
+import { CommentsCard } from '../../components/projects/CommentsCard'
+import { MembersPanel } from '../../components/projects/MembersPanel'
+import { CreateProjectModal } from '../../components/projects/modals/CreateProjectModal'
+import { CreateEntryModal } from '../../components/projects/modals/CreateEntryModal'
+import { AddMemberModal } from '../../components/projects/modals/AddMemberModal'
 
 // Single-page flow: no tabs. 'list' is the landing page (all projects as
 // cards); clicking "View project" on a card opens 'detail' for that project.
@@ -324,7 +324,7 @@ export default function ProjectModule({ currentUser}: ProjectModuleProps) {
   }
 
   // Member operations
-  const handleAddMember = async (data: { email: string; role: import('../types/project').Role }) => {
+  const handleAddMember = async (data: { email: string; role: import('../../types/project').Role }) => {
     if (!activeProject) return
     if (!permissions.canManageMembers()) {
       showToast('Administrative authorization denied.', 'error')
@@ -362,7 +362,7 @@ export default function ProjectModule({ currentUser}: ProjectModuleProps) {
     }
   }
 
-  const handleChangeRole = async (memberEmail: string, newRole: import('../types/project').Role) => {
+  const handleChangeRole = async (memberEmail: string, newRole: import('../../types/project').Role) => {
     if (!activeProject) return
     if (!permissions.canManageMembers()) {
       showToast('Administrative authorization denied.', 'error')

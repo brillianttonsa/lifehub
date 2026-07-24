@@ -1,4 +1,4 @@
-import { useAuth } from '../context/authcontext/useAuth'
+import { useAuth } from '../../context/authcontext/useAuth'
 
 export default function Dashboard() {
   const { user } = useAuth()

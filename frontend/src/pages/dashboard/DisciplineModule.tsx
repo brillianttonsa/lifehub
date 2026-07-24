@@ -5,13 +5,13 @@ import {
   createCycle,
   deleteCycle,
   updateCycleStatus,
-} from '../api/disciplineApi'
-import { DisciplineCycle } from '../types/discipline'
-import { useDisciplineGrid } from '../hooks/useDisciplineGrid'
-import CycleHeader from '../components/dicipline/CycleHeader'
-import TaskList from '../components/dicipline/TaskList'
-import Grid from '../components/dicipline/Grid'
-import { getApiErrorMessage } from '../lib/apiClient'
+} from '../../api/disciplineApi'
+import { DisciplineCycle } from '../../types/discipline'
+import { useDisciplineGrid } from '../../hooks/useDisciplineGrid'
+import CycleHeader from '../../components/dicipline/CycleHeader'
+import TaskList from '../../components/dicipline/TaskList'
+import Grid from '../../components/dicipline/Grid'
+import { getApiErrorMessage } from '../../lib/apiClient'
 
 const statusStyles: Record<string, string> = {
   active: 'bg-emerald-100 text-emerald-800 border-emerald-200',

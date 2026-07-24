@@ -1,12 +1,12 @@
-import { ToastContainer } from '../components/projects/Toast'
-import { usePocketData } from '../hooks/UsePocketData'
-import { PocketHeader } from '../components/pocket/PocketHeader'
-import { StatCard } from '../components/pocket/PocketPrimitives'
-import { WalletsPanel } from '../components/pocket/WalletsPanelProps'
-import { TransactionsPanel } from '../components/pocket/TransactionsPanel'
-import { ActivitiesPanel } from '../components/pocket/ActivitiesPanel'
-import { TypeBreakdownPanel } from '../components/pocket/TypeBreakDownPanel'
-import { formatMoney } from '../utils/pocket'
+import { ToastContainer } from '../../components/projects/Toast'
+import { usePocketData } from '../../hooks/UsePocketData'
+import { PocketHeader } from '../../components/pocket/PocketHeader'
+import { StatCard } from '../../components/pocket/PocketPrimitives'
+import { WalletsPanel } from '../../components/pocket/WalletsPanelProps'
+import { TransactionsPanel } from '../../components/pocket/TransactionsPanel'
+import { ActivitiesPanel } from '../../components/pocket/ActivitiesPanel'
+import { TypeBreakdownPanel } from '../../components/pocket/TypeBreakDownPanel'
+import { formatMoney } from '../../utils/pocket'
 
 
 export default function PocketModule() {

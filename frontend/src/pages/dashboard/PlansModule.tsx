@@ -1,7 +1,7 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
 import { Link } from 'react-router-dom'
-import { useAuth } from '../context/authcontext/useAuth'
-import { getApiErrorMessage } from '../lib/apiClient'
+import { useAuth } from '../../context/authcontext/useAuth'
+import { getApiErrorMessage } from '../../lib/apiClient'
 import {
   getPlanningCycleDashboard,
   listPlanningCycles,
@@ -12,9 +12,9 @@ import {
   updateGoalProgress,
   updateGoal,
   deleteGoal,
-} from '../api/planApi'
-import { PlanningCycle, Goal, CycleType, CycleStatus, GoalPriority, GoalStatus } from '../types/plan'
-import { InputField } from '../components/ui/InputField'
+} from '../../api/planApi'
+import { PlanningCycle, Goal, CycleType, CycleStatus, GoalPriority, GoalStatus } from '../../types/plan'
+import { InputField } from '../../components/ui/InputField'
 import {
   Plus,
   List,
