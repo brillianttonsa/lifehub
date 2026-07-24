@@ -1,13 +1,11 @@
-import { ToastContainer } from '../../components/projects/Toast'
-import { usePocketData } from '../../hooks/UsePocketData'
-import { PocketHeader } from '../../components/pocket/PocketHeader'
-import { StatCard } from '../../components/pocket/PocketPrimitives'
-import { WalletsPanel } from '../../components/pocket/WalletsPanelProps'
-import { TransactionsPanel } from '../../components/pocket/TransactionsPanel'
-import { ActivitiesPanel } from '../../components/pocket/ActivitiesPanel'
-import { TypeBreakdownPanel } from '../../components/pocket/TypeBreakDownPanel'
+import { usePocketData } from '../../hooks/dashboard/UsePocketData'
+import { PocketHeader } from '../../components/dashboard/pocket/PocketHeader'
+import { StatCard } from '../../components/dashboard/pocket/PocketPrimitives'
+import { WalletsPanel } from '../../components/dashboard/pocket/WalletsPanelProps'
+import { TransactionsPanel } from '../../components/dashboard/pocket/TransactionsPanel'
+import { ActivitiesPanel } from '../../components/dashboard/pocket/ActivitiesPanel'
+import { TypeBreakdownPanel } from '../../components/dashboard/pocket/TypeBreakDownPanel'
 import { formatMoney } from '../../utils/pocket'
-
 
 export default function PocketModule() {
   const {
@@ -20,8 +18,6 @@ export default function PocketModule() {
     setActivityStatus,
     isLoading,
     isSaving,
-    toasts,
-    removeToast,
     reloadAll,
     createWalletEntry,
     removeWallet,
@@ -35,8 +31,8 @@ export default function PocketModule() {
   const activeWallets = wallets.filter((wallet) => !wallet.isDeleted)
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 ">
-      <div className="max-w-[1440px] mx-auto space-y-4">
+    <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-6 sm:px-6 lg:px-8 dark:bg-slate-950 dark:text-slate-100 transition-colors">
+      <div className="max-w-[1440px] mx-auto">
         <PocketHeader onRefresh={reloadAll} />
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 px-4 py-6 sm:px-6 lg:px-8">
@@ -83,7 +79,6 @@ export default function PocketModule() {
         </div>
       </div>
 
-      <ToastContainer toasts={toasts} onClose={removeToast} />
     </div>
   )
 }
