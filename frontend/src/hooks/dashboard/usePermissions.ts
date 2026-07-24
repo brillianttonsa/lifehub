@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Role, PERMISSION_MAP } from '../types/project'
+import { Role, PERMISSION_MAP } from '../../types/project'
 
 export const usePermissions = (userRole: Role) => {
   const checkPermission = useCallback(

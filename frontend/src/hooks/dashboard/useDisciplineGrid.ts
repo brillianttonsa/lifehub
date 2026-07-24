@@ -5,9 +5,9 @@ import {
   createTask as createTaskRequest,
   updateTask as updateTaskRequest,
   deleteTask as deleteTaskRequest,
-} from '../api/disciplineApi'
-import { DisciplineGrid, DisciplineLogsByTask } from '../types/discipline'
-import { getApiErrorMessage } from '../lib/apiClient'
+} from '../../api/disciplineApi'
+import { DisciplineGrid, DisciplineLogsByTask } from '../../types/discipline'
+import { getApiErrorMessage } from '../../lib/apiClient'
 
 function recomputeScore(logs: DisciplineLogsByTask, taskCount: number, dayCount: number) {
   const totalCells = taskCount * dayCount

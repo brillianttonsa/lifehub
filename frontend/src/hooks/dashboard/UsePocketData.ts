@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { getApiErrorMessage } from '../lib/apiClient'
+import { getApiErrorMessage } from '../../lib/apiClient'
 import {
   createActivity,
   createTransaction,
@@ -12,7 +12,8 @@ import {
   listTransactions,
   listWallets,
   restoreActivity,
-} from '../api/pocketApi'
+} from '../../api/pocketApi'
+import { useToast } from '../../context/toastcontext/ToastContext'
 import {
   ActivityStatus,
   PocketActivity,
@@ -21,8 +22,7 @@ import {
   TransactionType,
   Wallet,
   WalletType,
-} from '../types/pocket'
-import { Toast } from '../types/project'
+} from '../../types/pocket'
 
 const emptyOverview: PocketOverview = {
   totalBalance: 0,
@@ -59,16 +59,8 @@ export function usePocketData() {
   const [activityStatus, setActivityStatus] = useState<ActivityStatus>('active')
   const [isLoading, setIsLoading] = useState(true)
   const [isSaving, setIsSaving] = useState(false)
-  const [toasts, setToasts] = useState<Toast[]>([])
   const hasLoadedOnce = useRef(false)
-
-  const showToast = useCallback((message: string, type: Toast['type'] = 'success') => {
-    setToasts((prev) => [...prev, { id: Date.now(), message, type }])
-  }, [])
-
-  const removeToast = useCallback((id: number) => {
-    setToasts((prev) => prev.filter((toast) => toast.id !== id))
-  }, [])
+  const { showToast } = useToast()
 
   const refreshOverview = useCallback(async () => {
     try {
@@ -281,8 +273,6 @@ export function usePocketData() {
     setActivityStatus,
     isLoading,
     isSaving,
-    toasts,
-    removeToast,
     reloadAll: loadAll,
     createWalletEntry,
     removeWallet,
