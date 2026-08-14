@@ -1,5 +1,4 @@
 import { useMemo, useState, useEffect, useCallback } from 'react'
-import { Link } from 'react-router-dom'
 import { useAuth } from '../../context/authcontext/useAuth'
 import { getApiErrorMessage } from '../../lib/apiClient'
 import {
@@ -17,8 +16,6 @@ import { PlanningCycle, Goal, CycleType, CycleStatus, GoalPriority, GoalStatus }
 import { InputField } from '../../components/ui/InputField'
 import {
   Plus,
-  List,
-  LayoutGrid,
   Search,
   Trash2,
   Archive,
@@ -104,7 +101,6 @@ export default function PlansModule() {
     inProgressGoals: 0,
   })
   const [cycles, setCycles] = useState<PlanningCycle[]>([])
-  const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid')
   const [isSaving, setIsSaving] = useState(false)
   const [error, setError] = useState<string | null>(null)
   const [query, setQuery] = useState('')
@@ -267,21 +263,6 @@ export default function PlansModule() {
     }
   }
 
-  if (!isAuthenticated) {
-    return (
-      <div className="min-h-screen flex flex-col items-center justify-center px-4 py-10 bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 transition-colors">
-        <div className="rounded-3xl border border-slate-200 bg-white p-10 max-w-xl text-center shadow-lg dark:border-slate-800 dark:bg-slate-900">
-          <p className="text-sm uppercase tracking-[0.24em] text-slate-400 dark:text-slate-500 mb-3">Protected page</p>
-          <h1 className="text-3xl font-semibold mb-3 text-slate-900 dark:text-slate-100">Sign in to access your plans</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mb-6">Planning cycles are stored securely and require an authenticated LifeHub session.</p>
-          <Link to="/" className="inline-flex items-center justify-center rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white hover:bg-indigo-500 transition">
-            Return to sign in
-          </Link>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 dark:text-slate-100 px-4 py-6 sm:px-6 lg:px-8 transition-colors">
       <div className="max-w-[1440px] mx-auto">
@@ -296,14 +277,6 @@ export default function PlansModule() {
           </div>
 
           <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
-            <div className="flex gap-2 rounded-full border border-slate-200 bg-white p-1 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-              <button onClick={() => setViewMode('grid')} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${viewMode === 'grid' ? 'bg-indigo-600 text-white dark:bg-indigo-500' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'}`}>
-                <LayoutGrid size={16} /> Grid
-              </button>
-              <button onClick={() => setViewMode('list')} className={`inline-flex items-center gap-2 rounded-full px-4 py-2 text-sm font-semibold transition ${viewMode === 'list' ? 'bg-indigo-600 text-white dark:bg-indigo-500' : 'text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200'}`}>
-                <List size={16} /> List
-              </button>
-            </div>
             <button onClick={() => setShowCreateCycle(true)} className="inline-flex items-center gap-2 rounded-full bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/10 transition hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500">
               <Plus size={16} /> New planning cycle
             </button>
@@ -359,7 +332,8 @@ export default function PlansModule() {
 
         {error && <p className="mb-4 text-sm text-rose-600 dark:text-rose-400">{error}</p>}
 
-        <div className={`${viewMode === 'grid' ? 'grid gap-4 sm:grid-cols-2' : 'space-y-4'}`}>
+        {/* List View Container */}
+        <div className="space-y-4">
           {cycles.length === 0 ? (
             <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400">
               No planning cycles yet. Create one (e.g. "Q1 2027") to start grouping your goals.
@@ -453,6 +427,7 @@ export default function PlansModule() {
           )}
         </div>
 
+        {/* Modal: Create Cycle */}
         <AnimatePresence>
           {showCreateCycle && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/70 p-4">
@@ -502,6 +477,7 @@ export default function PlansModule() {
           )}
         </AnimatePresence>
 
+        {/* Modal: Add Goal */}
         <AnimatePresence>
           {showAddGoalFor && (
             <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/40 dark:bg-slate-950/70 p-4">

@@ -5,26 +5,22 @@ export default function QuickActionBar() {
 
   const actions = [
     {
-      label: '+ Add Plan / Task',
-      icon: '📋',
+      label: 'Add Plan',
       color: 'from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700',
       onClick: () => navigate('/plans'),
     },
     {
-      label: '+ Log Habit',
-      icon: '🔥',
+      label: 'Log Habit',
       color: 'from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700',
       onClick: () => navigate('/discipline'),
     },
     {
-      label: '+ Add Expense',
-      icon: '💰',
+      label: 'Add Expense',
       color: 'from-emerald-500 to-emerald-600 hover:from-emerald-600 hover:to-emerald-700',
       onClick: () => navigate('/pocket'),
     },
     {
-      label: '+ New Project Entry',
-      icon: '📝',
+      label: 'New Project',
       color: 'from-purple-500 to-purple-600 hover:from-purple-600 hover:to-purple-700',
       onClick: () => navigate('/project'),
     },
@@ -38,9 +34,7 @@ export default function QuickActionBar() {
           onClick={action.onClick}
           className={`group relative overflow-hidden rounded-xl bg-gradient-to-r ${action.color} px-6 py-4 font-semibold text-white shadow-lg transition duration-200 transform hover:scale-105 active:scale-95`}
         >
-          <div className="absolute inset-0 bg-white/0 transition group-hover:bg-white/10" />
           <div className="relative flex items-center justify-center gap-2">
-            <span className="text-xl">{action.icon}</span>
             <span>{action.label}</span>
           </div>
         </button>

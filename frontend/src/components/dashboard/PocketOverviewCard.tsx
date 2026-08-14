@@ -8,17 +8,8 @@ interface PocketOverviewCardProps {
   isLoading: boolean
 }
 
-export default function PocketOverviewCard({ pocketData, totalBalance, isLoading }: PocketOverviewCardProps) {
-  if (isLoading) {
-    return (
-      <div className="rounded-xl border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center justify-center p-8">
-          <Loader2 size={32} className="animate-spin text-slate-400" />
-        </div>
-      </div>
-    )
-  }
-
+export default function PocketOverviewCard({ pocketData, totalBalance }: PocketOverviewCardProps) {
+  
   return (
     <div className="space-y-4">
       {/* Total Balance Card */}

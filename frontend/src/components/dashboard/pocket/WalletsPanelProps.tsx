@@ -66,9 +66,16 @@ export function WalletsPanel({ wallets, isLoading, isSaving, onCreate, onDelete 
         </button>
       </form>
 
-      <div className="mt-4 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
         {isLoading && <SkeletonRows />}
-        {!isLoading && wallets.length === 0 && <EmptyState label="No wallets yet. Add one to get started." />}
+
+        {/* 🌟 Centered Empty State across full grid width */}
+        {!isLoading && wallets.length === 0 && (
+          <div className="col-span-full flex w-full items-center justify-center py-8">
+            <EmptyState label="No wallets yet. Add one to get started." />
+          </div>
+        )}
+
         {!isLoading &&
           wallets.map((wallet) => {
             const Icon = getWalletIcon(wallet.type)

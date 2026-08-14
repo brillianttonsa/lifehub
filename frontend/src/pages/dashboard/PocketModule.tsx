@@ -1,5 +1,4 @@
 import { usePocketData } from '../../hooks/dashboard/UsePocketData'
-import { PocketHeader } from '../../components/dashboard/pocket/PocketHeader'
 import { StatCard } from '../../components/dashboard/pocket/PocketPrimitives'
 import { WalletsPanel } from '../../components/dashboard/pocket/WalletsPanelProps'
 import { TransactionsPanel } from '../../components/dashboard/pocket/TransactionsPanel'
@@ -18,7 +17,6 @@ export default function PocketModule() {
     setActivityStatus,
     isLoading,
     isSaving,
-    reloadAll,
     createWalletEntry,
     removeWallet,
     createActivityEntry,
@@ -33,7 +31,6 @@ export default function PocketModule() {
   return (
     <div className="min-h-screen bg-slate-50 text-slate-900 px-4 py-6 sm:px-6 lg:px-8 dark:bg-slate-950 dark:text-slate-100 transition-colors">
       <div className="max-w-[1440px] mx-auto">
-        <PocketHeader onRefresh={reloadAll} />
 
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4 px-4 py-6 sm:px-6 lg:px-8">
           <StatCard label="Total balance" value={formatMoney(overview.totalBalance)} tone="dark" />
