@@ -1,5 +1,4 @@
 import { Link } from 'react-router-dom';
-import { Sparkles } from 'lucide-react';
 
 interface AuthHeaderProps {
   promptText?: string;
@@ -15,12 +14,17 @@ export function AuthHeader({
   return (
     <header className="max-w-7xl w-full mx-auto px-6 py-6 flex items-center justify-between relative z-10">
       {/* Logo */}
-      <Link to="/" className="flex items-center gap-3 text-slate-900 dark:text-white">
-        <div className="w-8 h-8 rounded-xl bg-indigo-500/20 border border-indigo-500/30 flex items-center justify-center text-indigo-400">
-          <Sparkles className="w-4 h-4" />
+      <a href="/" className="flex items-center gap-3 w-fit">
+        <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-500/30">
+          <span className="text-white font-bold text-lg">
+            LH
+          </span>
         </div>
-        <span className="font-bold text-xl tracking-tight">LifeHub</span>
-      </Link>
+
+        <span className="font-bold text-xl tracking-tight">
+          LifeHub
+        </span>
+      </a>
 
       {/* Action Links */}
       <div className="flex items-center gap-4 text-sm">

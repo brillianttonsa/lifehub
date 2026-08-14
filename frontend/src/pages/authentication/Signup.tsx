@@ -49,12 +49,7 @@ export default function Signup() {
       buttonLink="/login"
       rightPanel={rightPanel}
     >
-      <div className="flex flex-col gap-2 mb-8">
-        <h1 className="text-3xl sm:text-4xl font-extrabold tracking-tight">Create your account</h1>
-        <p className="text-sm text-slate-600 dark:text-slate-400">
-          Start orchestrating your goals, money, habits, and projects.
-        </p>
-      </div>
+      
 
       {toast ? (
         <div className={`mb-6 p-4 rounded-xl text-xs font-medium border ${toast.type === 'success' ? 'bg-emerald-500/10 border-emerald-500/20 text-emerald-400' : 'bg-rose-500/10 border-rose-500/20 text-rose-400'}`}>
@@ -62,22 +57,7 @@ export default function Signup() {
         </div>
       ) : null}
 
-      <button
-        type="button"
-        className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-2xl border border-slate-200 dark:border-white/10 bg-white/80 dark:bg-white/[0.03] hover:bg-slate-100 dark:hover:bg-white/5 text-sm font-medium transition-all duration-200 shadow-sm"
-      >
-        <FaGoogle className="w-5 h-5" />
-        <span>Continue with Google</span>
-      </button>
-
-      <div className="relative my-6 flex items-center justify-center">
-        <div className="absolute inset-0 flex items-center">
-          <div className="w-full border-t border-slate-200 dark:border-white/10" />
-        </div>
-        <span className="relative px-4 text-xs font-semibold uppercase tracking-wider bg-slate-50 dark:bg-[#0B0F19] text-slate-400">
-          or continue with email
-        </span>
-      </div>
+     
 
       <form onSubmit={handleSignupSubmit} className="flex flex-col gap-4">
         <AuthFormField

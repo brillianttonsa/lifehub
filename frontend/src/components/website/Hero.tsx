@@ -10,9 +10,9 @@ interface ModuleProps {
 
 const modulesData: ModuleProps[] = [
   { id: 'plan', label: 'Plan', icon: <CalendarCheck className="w-5 h-5 text-indigo-400" />, position: 'top-12 left-4' },
-  { id: 'Wallet', label: 'Wallet', icon: <Wallet className="w-5 h-5 text-emerald-400" />, position: 'top-10 right-4' },
-  { id: 'habits', label: 'Habits', icon: <Zap className="w-5 h-5 text-sky-400" />, position: 'bottom-16 left-6' },
-  { id: 'projects', label: 'Projects', icon: <FolderDot className="w-5 h-5 text-fuchsia-400" />, position: 'bottom-20 right-4' },
+  { id: 'Wallet', label: 'Wallet', icon: <Wallet className="w-5 h-5 text-emerald-400" />, position: 'top-12 right-4' },
+  { id: 'habits', label: 'Habits', icon: <Zap className="w-5 h-5 text-sky-400" />, position: 'bottom-16 left-4' },
+  { id: 'projects', label: 'Projects', icon: <FolderDot className="w-5 h-5 text-fuchsia-400" />, position: 'bottom-16 right-4' },
 ];
 
 export default function Hero() {
@@ -28,7 +28,7 @@ export default function Hero() {
       <Header />  
 
       {/* Hero Section */}
-      <main className="max-w-7xl mx-auto px-6 pt-36 pb-20 grid lg:grid-cols-12 gap-12 items-center">
+      <main className="max-w-7xl mx-auto px-6 pt-34 pb-16 grid lg:grid-cols-12 gap-12 items-center">
         
         {/* Left Column: Text & CTA */}
         <div className="lg:col-span-6 flex flex-col items-start gap-6">

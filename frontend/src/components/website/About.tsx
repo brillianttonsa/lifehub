@@ -23,7 +23,7 @@ const reasonCards = [
 
 export default function About() {
   return (
-    <section id="about" className="py-24 bg-slate-50 text-slate-900 dark:bg-[#0B0F19] dark:text-white transition-colors duration-300">
+    <section id="about" className="py-18 bg-slate-50 text-slate-900 dark:bg-[#0B0F19] dark:text-white transition-colors duration-300">
       <div className="max-w-7xl mx-auto px-6">
         
         {/* Top Split Section: Title & Mission Narrative */}
@@ -31,7 +31,7 @@ export default function About() {
           
           {/* Left Column: Heading & Eyebrow */}
           <div className="lg:col-span-7 flex flex-col items-start gap-4">
-            <span className="text-xs font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase">
+            <span className="text-xs font-bold tracking-widest text-slate-500 dark:text-slate-400 uppercase text-center">
               ABOUT
             </span>
             <h2 className="text-3xl sm:text-5xl font-bold tracking-tight leading-tight">
@@ -45,7 +45,7 @@ export default function About() {
           {/* Right Column: Mission Text */}
           <div className="lg:col-span-5 flex flex-col gap-6 text-base sm:text-lg text-slate-600 dark:text-slate-400 leading-relaxed pt-2">
             <p>
-              Notes for goals. Spreadsheets for money. Reminders for habits. Separate apps for projects. Every part of your life lives somewhere else.
+              Notes for goals. strategies for money. Reminders for habits. Separate apps for projects. Every part of your life lives somewhere else.
             </p>
             <p className="text-slate-900 dark:text-slate-200 font-medium">
               Our mission is to help you transform intention into execution — a single place to plan, track and improve every area of your life.
