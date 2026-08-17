@@ -1,4 +1,4 @@
-import { TrendingDown, TrendingUp, Wallet, Loader2 } from 'lucide-react'
+import { TrendingDown, TrendingUp, Wallet } from 'lucide-react'
 import { PocketOverview } from '../../types/pocket'
 import { formatMoney } from '../../utils/pocket'
 
