@@ -1,4 +1,4 @@
-import { ArrowLeft, Plus, Search } from 'lucide-react'
+import { ArrowLeft, Plus, Search, ShieldCheck } from 'lucide-react'
 import { useProjectModule } from '../../hooks/dashboard/useProjectModule'
 import { User } from '../../types/project'
 import { ProjectList } from '../../components/dashboard/projects/ProjectList'
@@ -52,49 +52,50 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
   } = useProjectModule({ currentUser })
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-900 dark:bg-slate-950 px-4 py-6 sm:px-6 lg:px-8 dark:text-slate-100 transition-colors">
-      <div className="max-w-[1440px] mx-auto">
+    <div className="min-h-screen bg-[#07111c] text-slate-100 transition-colors">
+      <div className="mx-auto min-h-screen max-w-[1600px] border-x border-slate-800/70 bg-[#0a1623]">
         {/* Header */}
-        <header className="rounded-2xl bg-white dark:bg-slate-900 border border-transparent dark:border-slate-800 shadow-sm m-4 p-4 transition-colors">
-          <div className="mx-auto flex max-w-[1440px] items-center justify-between gap-4">
-            <div>
-              <p className="text-sm font-medium uppercase tracking-[0.24em] text-indigo-600 dark:text-indigo-400">
-                Project
-              </p>
-              <h1 className="text-lg font-semibold tracking-tight text-slate-900 dark:text-slate-100">
-                Team projects
-              </h1>
+        <header className="sticky top-0 z-20 border-b border-slate-800 bg-[#07111c]/95 px-5 py-4 shadow-2xl shadow-black/10 backdrop-blur sm:px-8">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-300 text-xl font-bold text-slate-950 shadow-lg shadow-emerald-500/20">L</div>
+              <div>
+                <p className="text-sm font-bold tracking-wide text-white">LifeHub <span className="ml-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-semibold text-emerald-400">Projects module</span></p>
+                <p className="text-xs text-slate-500">Collaborative logbook and permission engine</p>
+              </div>
             </div>
 
-            <div className="relative sm:block">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 dark:text-slate-500" size={16} />
+            <div className="flex items-center gap-3">
+              <div className="hidden items-center gap-1.5 rounded-xl border border-slate-800 bg-slate-900/80 px-2 py-1.5 text-xs text-slate-400 sm:flex"><ShieldCheck size={14} className="text-emerald-400" /> Workspace access</div>
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" size={16} />
               <input
                 type="text"
                 placeholder="Search projects..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="rounded-full border border-slate-200 bg-slate-50 py-2.5 pl-9 pr-4 text-sm text-slate-900 outline-none focus:border-indigo-300 dark:border-slate-800 dark:bg-slate-950 dark:text-slate-100 dark:placeholder-slate-500 dark:focus:border-indigo-500 transition-colors"
+                className="w-44 rounded-xl border border-slate-800 bg-slate-900 py-2.5 pl-9 pr-4 text-xs text-slate-100 outline-none transition-colors placeholder:text-slate-600 focus:border-emerald-500 sm:w-60"
               />
+              </div>
             </div>
           </div>
         </header>
 
         {/* Main Content */}
-        <div className="px-4 py-6 sm:px-6 lg:px-8">
+        <div className="px-4 py-6 sm:px-7 lg:px-9">
           <div className="mx-auto max-w-[1440px]">
             {/* All-projects landing page */}
             {view === 'list' && (
-              <div className="space-y-6">
-                <div className="flex items-center justify-between">
+              <div className="space-y-7">
+                <div className="flex items-end justify-between gap-4">
                   <div>
-                    <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">All projects</h2>
-                    <p className="mt-1 text-sm text-slate-500 dark:text-slate-400">
-                      Every project you have access to, in one place.
-                    </p>
+                    <p className="mb-2 text-[11px] font-bold uppercase tracking-[0.25em] text-emerald-400">My workspaces</p>
+                    <h2 className="text-3xl font-bold tracking-tight text-white">Projects that move life forward.</h2>
+                    <p className="mt-2 text-sm text-slate-400">Every project you have access to, in one focused workspace.</p>
                   </div>
                   <button
                     onClick={() => setIsCreateProjectModalOpen(true)}
-                    className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                    className="flex shrink-0 items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/15 transition hover:bg-emerald-400"
                   >
                     <Plus size={14} /> Create project
                   </button>
@@ -112,21 +113,21 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
 
             {/* Single project page */}
             {view === 'detail' && activeProject && (
-              <div className="space-y-6">
+              <div className="space-y-7">
                 <div className="flex flex-wrap items-center justify-between gap-4">
                   <div className="flex items-start gap-3">
                     <button
                       onClick={() => setView('list')}
-                      className="mt-1 flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-600 transition hover:bg-slate-100 hover:text-slate-900 dark:border-slate-800 dark:bg-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-100"
+                      className="mt-1 flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-slate-800 bg-slate-900 text-slate-400 transition hover:border-emerald-500/40 hover:bg-slate-800 hover:text-emerald-400"
                       title="Back to all projects"
                     >
                       <ArrowLeft size={16} />
                     </button>
                     <div>
-                      <h2 className="text-xl font-semibold text-slate-900 dark:text-slate-100">
+                      <h2 className="text-2xl font-bold tracking-tight text-white">
                         {activeProject.name}
                       </h2>
-                      <p className="mt-1 max-w-2xl text-sm text-slate-500 dark:text-slate-400">
+                      <p className="mt-1 max-w-2xl text-sm text-slate-400">
                         {activeProject.description}
                       </p>
                     </div>
@@ -135,7 +136,7 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
                   {permissions.canCreateEntry() && (
                     <button
                       onClick={() => setIsCreateEntryModalOpen(true)}
-                      className="flex items-center gap-1.5 rounded-full bg-indigo-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-indigo-500 dark:bg-indigo-600 dark:hover:bg-indigo-500"
+                      className="flex items-center gap-1.5 rounded-xl bg-emerald-500 px-4 py-2.5 text-sm font-bold text-slate-950 shadow-lg shadow-emerald-500/15 transition hover:bg-emerald-400"
                     >
                       <Plus size={14} /> Write entry
                     </button>
@@ -143,7 +144,7 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
                 </div>
 
                 {/* Project info + members, side by side up top */}
-                <div className="grid gap-6 lg:grid-cols-2">
+                <div className="grid gap-5 lg:grid-cols-[1fr_1.35fr]">
                   <ProjectDetailCard project={activeProject} onDelete={handleDeleteProject} deletePending={false} />
 
                   <MembersPanel
@@ -158,8 +159,8 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
 
                 {/* Entries, full width */}
                 <div className="space-y-4">
-                  <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
-                    Entries
+                  <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">
+                    Project updates
                   </h3>
                   <EntriesPanel
                     entries={activeProject.entries}
@@ -175,7 +176,7 @@ export default function ProjectModule({ currentUser }: ProjectModuleProps) {
                 {/* Comments for the selected entry */}
                 {activeEntry && (
                   <div className="space-y-4">
-                    <h3 className="text-sm font-semibold uppercase tracking-[0.2em] text-slate-400 dark:text-slate-500">
+                    <h3 className="text-sm font-bold uppercase tracking-[0.2em] text-slate-300">
                       Comments
                     </h3>
                     <CommentsCard

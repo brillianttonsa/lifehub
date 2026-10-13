@@ -35,7 +35,7 @@ export function EntriesPanel({
     return (
       <div className="space-y-3">
         {[1, 2, 3].map((i) => (
-          <div key={i} className="animate-pulse space-y-3 rounded-3xl border border-slate-200 bg-white p-5 dark:border-slate-800 dark:bg-slate-900">
+          <div key={i} className="animate-pulse space-y-3 rounded-2xl border border-slate-800 bg-slate-950 p-5">
             <div className="h-4 w-2/3 rounded-full bg-slate-200 dark:bg-slate-800"></div>
             <div className="h-3 w-full rounded-full bg-slate-100 dark:bg-slate-900"></div>
             <div className="h-2 w-1/2 rounded-full bg-slate-100 dark:bg-slate-900"></div>
@@ -47,7 +47,7 @@ export function EntriesPanel({
 
   if (entries.length === 0) {
     return (
-      <div className="rounded-3xl border border-dashed border-slate-300 bg-white p-10 text-center dark:border-slate-800 dark:bg-slate-900">
+      <div className="rounded-2xl border border-dashed border-slate-700 bg-slate-950 p-10 text-center">
         <BookOpen className="mx-auto h-8 w-8 text-slate-400 dark:text-slate-600" />
         <p className="mt-2 text-sm text-slate-500 dark:text-slate-400">No entries yet for this project.</p>
         {onCreateEntry && (
@@ -70,20 +70,20 @@ export function EntriesPanel({
             key={entry.id}
             whileHover={{ y: -2 }}
             onClick={() => onSelectEntry(entry.id)}
-            className={`cursor-pointer space-y-3 rounded-3xl border p-5 shadow-sm transition ${
+            className={`cursor-pointer space-y-3 rounded-2xl border p-5 shadow-xl shadow-black/10 transition ${
               selectedEntryId === entry.id
-                ? 'border-indigo-300 bg-indigo-50/40 dark:border-indigo-500/50 dark:bg-indigo-950/20'
-                : 'border-slate-200 bg-white hover:border-slate-300 dark:border-slate-800 dark:bg-slate-900 dark:hover:border-slate-700'
+                ? 'border-emerald-500/50 bg-emerald-500/5'
+                : 'border-slate-800 bg-slate-950 hover:border-slate-700'
             }`}
           >
             {/* Entry Metadata */}
             <div className="flex items-start justify-between gap-2 text-sm">
               <div className="flex items-center gap-2">
-                <div className="flex h-8 w-8 items-center justify-center rounded-full bg-indigo-600 text-xs font-semibold text-white">
+                <div className="flex h-8 w-8 items-center justify-center rounded-xl bg-emerald-500/10 text-xs font-semibold text-emerald-400">
                   {entry.author.substring(0, 2).toUpperCase()}
                 </div>
                 <div>
-                  <span className="font-semibold text-slate-900 dark:text-slate-100">{entry.author}</span>
+                  <span className="font-semibold text-white">{entry.author}</span>
                   <span
                     className={`ml-2 rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide ${getRoleColor(entry.role)}`}
                   >
@@ -95,10 +95,10 @@ export function EntriesPanel({
             </div>
 
             {/* Entry Content */}
-            <p className="line-clamp-3 text-sm leading-relaxed text-slate-600 dark:text-slate-300">{entry.content}</p>
+            <p className="line-clamp-3 text-sm leading-relaxed text-slate-300">{entry.content}</p>
 
             {/* Actions Footer */}
-            <div className="flex items-center justify-between border-t border-slate-100 pt-3 text-xs text-slate-500 dark:border-slate-800 dark:text-slate-400">
+            <div className="flex items-center justify-between border-t border-slate-800 pt-3 text-xs text-slate-500">
               <button className="flex items-center gap-1 transition hover:text-slate-900 dark:hover:text-slate-200">
                 <MessageSquare size={14} />
                 <span>{entry.comments.length} comments</span>

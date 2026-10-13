@@ -41,15 +41,15 @@ export function CommentsCard({
   }
 
   return (
-    <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="border-b border-slate-100 pb-3 dark:border-slate-800">
+    <article className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-black/10">
+      <div className="border-b border-slate-800 pb-3">
         <div className="flex items-center gap-2">
-          <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
             <MessageSquareText size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Comments</h3>
-            <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">
+            <h3 className="text-sm font-semibold text-white">Comments</h3>
+            <p className="mt-0.5 text-xs text-slate-400">
               {entry.commentsEnabled ? `Entry ${entry.id}` : 'Comments disabled for this entry'}
             </p>
           </div>
@@ -73,7 +73,7 @@ export function CommentsCard({
         )}
 
         {comments.map((comment) => (
-          <div key={comment.id} className="rounded-2xl bg-slate-50 p-3 text-sm last:border-0 dark:bg-slate-950">
+          <div key={comment.id} className="rounded-xl border border-slate-800 bg-slate-900/80 p-3 text-sm last:border-0">
             <div className="mb-1 flex justify-between text-xs text-slate-400 dark:text-slate-500">
               <span>
                 <strong className="text-slate-700 dark:text-slate-300">{comment.author}</strong> ({comment.role.replace('_', ' ')})

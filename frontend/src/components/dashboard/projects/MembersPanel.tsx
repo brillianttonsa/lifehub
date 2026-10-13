@@ -30,15 +30,15 @@ export function MembersPanel({
 
   return (
     <>
-      <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-        <div className="flex items-center justify-between border-b border-slate-100 pb-3 dark:border-slate-800">
+      <article className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-black/10">
+        <div className="flex items-center justify-between border-b border-slate-800 pb-3">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+            <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
               <Users size={18} />
             </div>
             <div>
-              <h4 className="text-sm font-semibold text-slate-900 dark:text-slate-100">Members</h4>
-              <p className="mt-0.5 text-xs text-slate-500 dark:text-slate-400">{members.length} total members</p>
+              <h4 className="text-sm font-semibold text-white">Members</h4>
+              <p className="mt-0.5 text-xs text-slate-400">{members.length} total members</p>
             </div>
           </div>
           {canManageMembers && onAddMember && (
@@ -54,15 +54,15 @@ export function MembersPanel({
           {members.map((member) => (
             <div
               key={member.email}
-              className="flex items-center justify-between border-b border-slate-100 pb-3 text-sm last:border-0 last:pb-0 dark:border-slate-800"
+              className="flex items-center justify-between border-b border-slate-800 pb-3 text-sm last:border-0 last:pb-0"
             >
               <div className="flex flex-1 items-center gap-2">
                 <div className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-700 text-xs font-semibold text-white dark:bg-slate-800">
                   {member.name?.substring(0, 1).toUpperCase() || member.email.substring(0, 1).toUpperCase()}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <strong className="block truncate text-slate-900 dark:text-slate-100">{member.name}</strong>
-                  <span className="truncate text-xs text-slate-400 dark:text-slate-500">{member.email}</span>
+                  <strong className="block truncate text-slate-200">{member.name}</strong>
+                  <span className="truncate text-xs text-slate-500">{member.email}</span>
                 </div>
               </div>
 

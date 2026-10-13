@@ -19,15 +19,15 @@ export function ProjectDetailCard({ project, onDelete, deletePending = false }: 
   }
 
   return (
-    <article className="space-y-4 rounded-3xl border border-slate-200 bg-white p-5 shadow-sm dark:border-slate-800 dark:bg-slate-900">
-      <div className="space-y-2 border-b border-slate-100 pb-4 dark:border-slate-800">
+    <article className="space-y-4 rounded-2xl border border-slate-800 bg-slate-950 p-5 shadow-xl shadow-black/10">
+      <div className="space-y-2 border-b border-slate-800 pb-4">
         <div className="flex items-start gap-2">
-          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-950/60 dark:text-indigo-400">
+          <div className="mt-0.5 flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-400">
             <Activity size={18} />
           </div>
           <div>
-            <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{project.name}</h3>
-            <p className="mt-1 text-xs leading-relaxed text-slate-500 dark:text-slate-400">{project.description}</p>
+            <h3 className="text-sm font-semibold text-white">{project.name}</h3>
+            <p className="mt-1 text-xs leading-relaxed text-slate-400">{project.description}</p>
           </div>
         </div>
       </div>
